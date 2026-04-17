@@ -118,7 +118,7 @@ export default function Footer() {
           className="text-brand-stone text-xs"
           style={{ fontFamily: "var(--font-inter), sans-serif" }}
         >
-          &copy; 2025 Amy Casanova Real Estate. All rights reserved.
+          &copy; 2026 Amy Casanova Real Estate. All rights reserved.
         </span>
       </div>
     </footer>
