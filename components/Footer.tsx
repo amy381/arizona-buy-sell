@@ -5,6 +5,7 @@ import { FaInstagram, FaFacebook, FaTiktok, FaYoutube } from "react-icons/fa";
 const navLinks = [
   { label: "Home", href: "/" },
   { label: "Search Properties", href: "/search-properties" },
+  { label: "Listing Alerts", href: "/listing-alerts" },
   { label: "Communities", href: "/communities" },
   { label: "Sell", href: "/sell" },
   { label: "About", href: "/about" },
