@@ -79,16 +79,16 @@ export default function Footer() {
           </div>
           {/* Social icons */}
           <div className="mt-4 flex gap-4">
-            <a href="#" aria-label="Instagram" className="text-linen text-xl hover:text-brand-stone transition-colors">
+            <a href="https://www.instagram.com/realist_agent" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-linen text-xl hover:text-brand-stone transition-colors">
               <FaInstagram />
             </a>
-            <a href="#" aria-label="Facebook" className="text-linen text-xl hover:text-brand-stone transition-colors">
+            <a href="https://www.facebook.com/amy.casanova.355732" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="text-linen text-xl hover:text-brand-stone transition-colors">
               <FaFacebook />
             </a>
-            <a href="#" aria-label="TikTok" className="text-linen text-xl hover:text-brand-stone transition-colors">
+            <a href="https://www.tiktok.com/@therealistagent" target="_blank" rel="noopener noreferrer" aria-label="TikTok" className="text-linen text-xl hover:text-brand-stone transition-colors">
               <FaTiktok />
             </a>
-            <a href="#" aria-label="YouTube" className="text-linen text-xl hover:text-brand-stone transition-colors">
+            <a href="https://www.youtube.com/channel/UC5SNiTBYLuVpt5VtMucM96Q" target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="text-linen text-xl hover:text-brand-stone transition-colors">
               <FaYoutube />
             </a>
           </div>
