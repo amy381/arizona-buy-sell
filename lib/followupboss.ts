@@ -1,3 +1,52 @@
+// ── Generic event submission ──────────────────────────────────────────────────
+
+export interface FubEventPayload {
+  source: string;
+  type?: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  note?: string;
+}
+
+export async function submitFubEvent(payload: FubEventPayload): Promise<void> {
+  const apiKey = process.env.FOLLOW_UP_BOSS_API_KEY;
+  if (!apiKey) throw new Error("FOLLOW_UP_BOSS_API_KEY is not set");
+
+  const body = {
+    source: payload.source,
+    type:   payload.type || "General Inquiry",
+    person: {
+      firstName: payload.firstName,
+      lastName:  payload.lastName,
+      emails:    [{ value: payload.email }],
+      phones:    payload.phone ? [{ value: payload.phone }] : [],
+    },
+    note: payload.note || "",
+  };
+
+  const credentials = Buffer.from(`${apiKey}:`).toString("base64");
+
+  const res = await fetch("https://api.followupboss.com/v1/events", {
+    method: "POST",
+    headers: {
+      "Content-Type":  "application/json",
+      "Authorization": `Basic ${credentials}`,
+      "X-System":      "ArizonaBuySell",
+      "X-System-Key":  apiKey,
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Follow Up Boss API error ${res.status}: ${text}`);
+  }
+}
+
+// ── Listing-alert specific ────────────────────────────────────────────────────
+
 export interface FubLeadPayload {
   firstName: string;
   lastName: string;

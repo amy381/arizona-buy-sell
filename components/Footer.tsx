@@ -59,6 +59,26 @@ export default function Footer() {
                 {link.label}
               </Link>
             ))}
+            <span
+              className="text-brand-stone text-xs uppercase tracking-widest mt-3 mb-1"
+              style={{ fontFamily: "var(--font-inter), sans-serif" }}
+            >
+              Resources
+            </span>
+            {[
+              { label: "Buyers Guide",        href: "/buyers"              },
+              { label: "Sellers Guide",       href: "/sellers"             },
+              { label: "Mortgage Calculator", href: "/mortgage-calculator" },
+            ].map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-linen text-sm hover:opacity-80 transition-opacity"
+                style={{ fontFamily: "var(--font-inter), sans-serif" }}
+              >
+                {link.label}
+              </Link>
+            ))}
           </nav>
         </div>
 
