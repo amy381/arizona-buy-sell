@@ -3,7 +3,7 @@ import { getSupabase }     from "@/lib/supabase";
 import { submitFubEvent }  from "@/lib/followupboss";
 import { Resend }          from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResend() { return new Resend(process.env.RESEND_API_KEY); }
 
 export async function POST(req: NextRequest) {
   try {
@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
 
     // ── Step 4: Send email notification to Amy ───────────────────────────────
     try {
-      await resend.emails.send({
+      await getResend().emails.send({
         from:    "Nestimate <noreply@desert-legacy.com>",
         to:      "amy@desert-legacy.com",
         subject: `New Nestimate Request — ${address}, ${city}`,
