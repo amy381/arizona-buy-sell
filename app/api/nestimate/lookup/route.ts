@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 
 export async function GET(req: NextRequest) {
   // ── Auth ────────────────────────────────────────────────────────────────────
@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
   }
 
   // ── Lookup ──────────────────────────────────────────────────────────────────
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from("nestimate_submissions")
     .select("owner_first, owner_last, phone, email, intent_signal, submitted_at, is_duplicate")
     .ilike("address", `%${address.trim()}%`)

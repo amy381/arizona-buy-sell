@@ -1,7 +1,15 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
-const supabaseUrl         = process.env.SUPABASE_URL!;
-const supabaseServiceKey  = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+// Lazy singleton — createClient is deferred to first request so Next.js build
+// doesn't execute it before runtime env vars are available.
+let _client: SupabaseClient | null = null;
 
-// Server-side only — uses service role key, never exposed to the browser
-export const supabase = createClient(supabaseUrl, supabaseServiceKey);
+export function getSupabase(): SupabaseClient {
+  if (!_client) {
+    const url = process.env.SUPABASE_URL;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!url || !key) throw new Error("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set");
+    _client = createClient(url, key);
+  }
+  return _client;
+}

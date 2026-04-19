@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase }        from "@/lib/supabase";
+import { getSupabase }     from "@/lib/supabase";
 import { submitFubEvent }  from "@/lib/followupboss";
 import { Resend }          from "resend";
 
@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     } = body;
 
     // ── Step 1: Duplicate check ──────────────────────────────────────────────
-    const { data: existing } = await supabase
+    const { data: existing } = await getSupabase()
       .from("nestimate_submissions")
       .select("id")
       .ilike("address", `%${address}%`)
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     // ── Step 2: Save to Supabase ─────────────────────────────────────────────
     const submitted_at = new Date().toISOString();
 
-    const { data: inserted, error: insertError } = await supabase
+    const { data: inserted, error: insertError } = await getSupabase()
       .from("nestimate_submissions")
       .insert({
         address,
@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (fubSucceeded && recordId) {
-      await supabase
+      await getSupabase()
         .from("nestimate_submissions")
         .update({ forwarded_to_fub: true })
         .eq("id", recordId);
