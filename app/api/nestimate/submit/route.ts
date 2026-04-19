@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
 
     // ── Step 4: Send email notification to Amy ───────────────────────────────
     try {
-      await getResend().emails.send({
+      const emailResult = await getResend().emails.send({
         from:    "Nestimate <noreply@desert-legacy.com>",
         to:      "amy@desert-legacy.com",
         subject: `New Nestimate Request — ${address}, ${city}`,
@@ -113,8 +113,13 @@ export async function POST(req: NextRequest) {
           .join("\n")
           .trim(),
       });
+      if (emailResult.error) {
+        console.error("[Nestimate] Resend returned error:", JSON.stringify(emailResult.error));
+      } else {
+        console.log("[Nestimate] Resend email sent, id:", emailResult.data?.id);
+      }
     } catch (emailErr) {
-      console.error("[Nestimate] Resend email failed (non-fatal):", emailErr);
+      console.error("[Nestimate] Resend email threw exception:", emailErr);
     }
 
     return NextResponse.json({ ok: true });
