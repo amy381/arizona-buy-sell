@@ -1,42 +1,27 @@
 import type { Metadata } from "next";
-import HomeValueForm from "@/components/HomeValueForm";
+import NestimateForm, { NestimateLeft } from "@/components/NestimateForm";
 
 export const metadata: Metadata = {
   title: "What Is My Home Worth? | Amy Casanova Real Estate",
-  description: "Get Amy's personalized Nestimate home valuation delivered within 24 hours. No obligation.",
+  description:
+    "Get Amy's personalized Nestimate home valuation delivered within 24 hours. No obligation. No pressure. Just honest numbers from someone who knows this market.",
 };
 
 export default function HomeValuePage() {
   return (
-    <main className="page-fade bg-brand-slate min-h-screen py-20 px-6">
-      <div className="max-w-xl mx-auto text-center">
-        <h1
-          className="text-linen leading-none mb-4"
-          style={{
-            fontFamily: "var(--font-alex-brush), cursive",
-            fontSize: "clamp(3rem, 8vw, 4.5rem)",
-          }}
-        >
-          What Is Your Home Worth?
-        </h1>
-        <p
-          className="text-brand-stone text-[16px] md:text-[18px] leading-relaxed mb-4"
-          style={{ fontFamily: "var(--font-inter), sans-serif" }}
-        >
-          Amy&apos;s AI-powered Nestimate valuation — delivered within 24 hours.
-        </p>
-        <p
-          className="text-brand-stone/70 text-sm mb-10"
-          style={{ fontFamily: "var(--font-inter), sans-serif" }}
-        >
-          Your personalized home valuation tool is almost ready. In the meantime, call Amy
-          directly at{" "}
-          <a href="tel:9285309393" className="text-linen hover:underline">
-            928-530-9393
-          </a>{" "}
-          or fill out the form below.
-        </p>
-        <HomeValueForm />
+    <main className="page-fade bg-brand-slate min-h-screen">
+      <div className="max-w-6xl mx-auto px-6 py-16 md:py-24">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-14 md:gap-20 items-start">
+
+          {/* Left — branding & messaging */}
+          <NestimateLeft />
+
+          {/* Right — form card */}
+          <div className="bg-steel rounded-2xl p-8">
+            <NestimateForm />
+          </div>
+
+        </div>
       </div>
     </main>
   );
