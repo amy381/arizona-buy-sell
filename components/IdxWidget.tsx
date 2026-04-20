@@ -11,6 +11,8 @@ export default function IdxWidget({ widgetId }: IdxWidgetProps) {
   const scriptId = `idxwidgetsrc-${widgetId}`;
 
   useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
     if (document.getElementById(scriptId)) return;
 
     const script = document.createElement("script");
@@ -18,10 +20,10 @@ export default function IdxWidget({ widgetId }: IdxWidgetProps) {
     script.type = "text/javascript";
     script.id = scriptId;
     script.src = `//arizonabuyandsell.idxbroker.com/idx/widgets/${widgetId}`;
-    document.head.appendChild(script);
+    container.appendChild(script);
 
     return () => {
-      const existing = document.head.querySelector(`#${scriptId}`);
+      const existing = document.getElementById(scriptId);
       if (existing) existing.remove();
     };
   }, [widgetId, scriptId]);
