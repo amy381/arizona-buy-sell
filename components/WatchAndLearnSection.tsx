@@ -1,0 +1,140 @@
+import FadeIn from "@/components/FadeIn";
+
+const LINEN = "#F0EBE3";
+const STONE = "#B8A898";
+const SLATE = "#212529";
+const STEEL = "#2E3338";
+
+const VIDEOS = [
+  {
+    category: "MARKET UPDATE",
+    title:    "Kingman Real Estate Trends — Spring 2026",
+    duration: "6:42",
+  },
+  {
+    category: "FIRST-TIME BUYER",
+    title:    "5 Mistakes New Arizona Homebuyers Make",
+    duration: "8:15",
+  },
+  {
+    category: "COMMUNITY TOUR",
+    title:    "A Day in Fort Mohave — Neighborhood Tour",
+    duration: "12:03",
+  },
+  {
+    category: "SELLER TIPS",
+    title:    "How to Stage a Desert Home That Actually Sells",
+    duration: "4:58",
+  },
+];
+
+export default function WatchAndLearnSection() {
+  return (
+    <section
+      style={{ background: SLATE }}
+      className="py-20 desk:py-[120px] px-6"
+    >
+      <div className="max-w-[1240px] mx-auto">
+
+        {/* Header */}
+        <FadeIn style={{ textAlign: "center" }}>
+          <p style={{
+            fontFamily: "var(--font-inter), sans-serif",
+            fontSize: 12, color: STONE,
+            textTransform: "uppercase", letterSpacing: ".25em",
+            marginBottom: 18,
+          }}>
+            Featured Video Library
+          </p>
+          <h2 style={{
+            fontFamily: "var(--font-alex-brush), cursive",
+            fontSize: 64, color: LINEN,
+            lineHeight: 1.05, margin: 0,
+          }}>
+            Watch &amp; Learn
+          </h2>
+          <div style={{
+            width: 56, height: 1,
+            background: "rgba(184,168,152,.6)",
+            margin: "24px auto",
+          }} />
+          <p style={{
+            fontFamily: "var(--font-inter), sans-serif",
+            fontSize: 16, color: STONE,
+            maxWidth: 640, margin: "0 auto",
+          }}>
+            Real estate tips, market updates, and community tours — straight from Amy.
+          </p>
+        </FadeIn>
+
+        {/* Video grid */}
+        <div className="grid grid-cols-1 desk:grid-cols-2 gap-8 mt-16">
+          {VIDEOS.map((v, i) => (
+            <FadeIn key={v.title} delay={i * 100}>
+              <a
+                href="#"
+                className="group block rounded-[14px] overflow-hidden no-underline
+                           hover:-translate-y-1 transition-transform duration-300"
+                style={{ background: STEEL }}
+              >
+                {/* Thumbnail */}
+                <div
+                  className="relative w-full"
+                  style={{ aspectRatio: "16/9", background: "linear-gradient(135deg,#3a4148,#262b30)" }}
+                >
+                  {/* Play button */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div
+                      className="group-hover:scale-110 transition-transform duration-300"
+                      style={{
+                        width: 68, height: 68, borderRadius: "50%",
+                        background: LINEN,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                      }}
+                    >
+                      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                        <polygon points="8,4 19,11 8,18" fill={SLATE} />
+                      </svg>
+                    </div>
+                  </div>
+                  {/* Duration badge */}
+                  <div
+                    className="absolute bottom-2.5 right-2.5"
+                    style={{
+                      background: "rgba(33,37,41,.85)",
+                      color: LINEN,
+                      fontFamily: "var(--font-inter), sans-serif",
+                      fontSize: 11, padding: "4px 8px", borderRadius: 4,
+                    }}
+                  >
+                    {v.duration}
+                  </div>
+                </div>
+
+                {/* Meta */}
+                <div style={{ padding: "20px 22px 24px" }}>
+                  <p style={{
+                    fontFamily: "var(--font-inter), sans-serif",
+                    fontSize: 12, color: STONE,
+                    textTransform: "uppercase", letterSpacing: ".05em",
+                    margin: "0 0 8px",
+                  }}>
+                    {v.category}
+                  </p>
+                  <p style={{
+                    fontFamily: "var(--font-inter), sans-serif",
+                    fontWeight: 500, fontSize: 15, color: LINEN,
+                    lineHeight: 1.4, margin: 0,
+                  }}>
+                    {v.title}
+                  </p>
+                </div>
+              </a>
+            </FadeIn>
+          ))}
+        </div>
+
+      </div>
+    </section>
+  );
+}
