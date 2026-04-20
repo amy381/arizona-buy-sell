@@ -1,5 +1,6 @@
-import HomeHero            from "@/components/HomeHero";
-import StatsBar            from "@/components/StatsBar";
+import HomeHero  from "@/components/HomeHero";
+import SocialBar from "@/components/SocialBar";
+import StatsBar  from "@/components/StatsBar";
 import IdxWidget           from "@/components/IdxWidget";
 import CommunitiesSection  from "@/components/CommunitiesSection";
 import AboutPreview        from "@/components/AboutPreview";
@@ -14,10 +15,13 @@ export default function Home() {
       {/* 1 — Hero */}
       <HomeHero />
 
-      {/* 2 — Stats Bar */}
+      {/* 2 — Social Bar */}
+      <SocialBar />
+
+      {/* 3 — Stats Bar */}
       <StatsBar />
 
-      {/* 3 — Featured Slideshow */}
+      {/* 4 — Featured Slideshow */}
       <section className="bg-brand-slate py-14 px-6">
         <div className="max-w-6xl mx-auto">
           <h2

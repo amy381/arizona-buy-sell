@@ -1,11 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import MobileMenu from "./MobileMenu";
 
-const navLinks = [
+const NAV_LINKS = [
   { label: "Home",              href: "/"                  },
   { label: "Search Properties", href: "/search-properties" },
   { label: "Listing Alerts",    href: "/listing-alerts"    },
@@ -15,124 +13,285 @@ const navLinks = [
   { label: "Contact",           href: "/contact"           },
 ];
 
-const resourceLinks = [
-  { label: "Buyers Guide",         href: "/buyers"               },
-  { label: "Sellers Guide",        href: "/sellers"              },
-  { label: "Mortgage Calculator",  href: "/mortgage-calculator"  },
-];
+const LINEN      = "#F0EBE3";
+const STONE      = "#B8A898";
+const SLATE      = "#212529";
+
+function PhoneIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0
+               013.7 9.26a19.79 19.79 0 01-3.07-8.67A2 2 0 012.48 2.5h3a2 2 0 012
+               1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 9.91a16 16 0
+               006.82 6.82l1.77-1.77a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2
+               2 0 0122 16.92z"/>
+    </svg>
+  );
+}
+
+function HamburgerIcon() {
+  return (
+    <svg width="22" height="18" viewBox="0 0 22 18" fill="none">
+      <rect width="22" height="1.5" rx="0.75" fill={LINEN} />
+      <rect y="8.25" width="22" height="1.5" rx="0.75" fill={LINEN} />
+      <rect y="16.5" width="22" height="1.5" rx="0.75" fill={LINEN} />
+    </svg>
+  );
+}
+
+function CloseIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke={LINEN} strokeWidth="1.5" strokeLinecap="round">
+      <line x1="4" y1="4" x2="20" y2="20" />
+      <line x1="20" y1="4" x2="4" y2="20" />
+    </svg>
+  );
+}
 
 export default function Header() {
-  const [menuOpen,      setMenuOpen]      = useState(false);
-  const [resourcesOpen, setResourcesOpen] = useState(false);
+  const [scrolled,  setScrolled]  = useState(false);
+  const [menuOpen,  setMenuOpen]  = useState(false);
+
+  useEffect(() => {
+    function onScroll() {
+      setScrolled(window.scrollY > window.innerHeight - 120);
+    }
+    // Run once on mount to handle hard-reload mid-page
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [menuOpen]);
+
+  const textShadow       = scrolled ? "none" : "0 2px 10px rgba(0,0,0,.45)";
+  const navLinkShadow    = scrolled ? "none" : "0 1px 8px rgba(0,0,0,.3)";
+  const iconCircleBg     = scrolled ? "transparent" : "rgba(240,235,227,.1)";
+  const padding          = scrolled ? "14px 40px" : "22px 44px";
+  const headerBg         = scrolled ? "rgba(33,37,41,.85)" : "transparent";
+  const borderBottom     = scrolled ? "1px solid rgba(240,235,227,.06)" : "none";
+  const backdropFilter   = scrolled ? "blur(14px)" : "none";
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full bg-brand-slate">
-        <div className="flex flex-row items-center justify-between px-6 py-3">
-          {/* LEFT: Logo + Agent Name */}
-          <div className="flex flex-row items-center gap-3">
-            <Image
-              src="/images/logo-black.png"
-              width={48}
-              height={48}
-              alt="Amy Casanova Real Estate logo"
-              style={{ filter: "brightness(0) invert(1)" }}
-            />
+      {/* ── Main header bar ────────────────────────────────────────────────── */}
+      <header
+        style={{
+          position:          "fixed",
+          top:               0,
+          left:              0,
+          right:             0,
+          zIndex:            50,
+          display:           "flex",
+          flexDirection:     "row",
+          alignItems:        "center",
+          justifyContent:    "space-between",
+          padding,
+          background:        headerBg,
+          backdropFilter,
+          WebkitBackdropFilter: backdropFilter,
+          borderBottom,
+          transition:        "all 350ms ease",
+        }}
+      >
+        {/* ── DESKTOP LEFT: Call Amy button ── */}
+        <a
+          href="tel:9285309393"
+          className="hidden desk:flex items-center gap-3 group"
+          style={{ textDecoration: "none", opacity: 1, transition: "opacity 200ms" }}
+          onMouseEnter={e => (e.currentTarget.style.opacity = ".85")}
+          onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
+        >
+          {/* Icon circle */}
+          <div
+            style={{
+              width:        38,
+              height:       38,
+              borderRadius: "50%",
+              background:   iconCircleBg,
+              border:       "1px solid rgba(240,235,227,.3)",
+              display:      "flex",
+              alignItems:   "center",
+              justifyContent: "center",
+              color:        LINEN,
+              transition:   "background 350ms ease",
+              flexShrink:   0,
+            }}
+          >
+            <PhoneIcon />
+          </div>
+          {/* Text lines */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            <span style={{
+              fontFamily:    "var(--font-inter), sans-serif",
+              fontSize:      10,
+              textTransform: "uppercase",
+              letterSpacing: ".22em",
+              color:         `rgba(240,235,227,.75)`,
+              textShadow,
+            }}>
+              Call Amy
+            </span>
+            <span style={{
+              fontFamily: "var(--font-inter), sans-serif",
+              fontWeight: 500,
+              fontSize:   22,
+              color:      LINEN,
+              textShadow,
+              lineHeight: 1,
+            }}>
+              928.530.9393
+            </span>
+          </div>
+        </a>
+
+        {/* ── MOBILE LEFT: Hamburger ── */}
+        <button
+          className="desk:hidden"
+          onClick={() => setMenuOpen(true)}
+          aria-label="Open menu"
+          style={{
+            width:      40,
+            height:     40,
+            background: "none",
+            border:     "none",
+            cursor:     "pointer",
+            display:    "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding:    0,
+          }}
+        >
+          <HamburgerIcon />
+        </button>
+
+        {/* ── DESKTOP RIGHT: Nav links ── */}
+        <nav
+          className="hidden desk:flex"
+          style={{ gap: 28, alignItems: "center" }}
+        >
+          {NAV_LINKS.map(link => (
             <Link
-              href="/"
-              className="text-linen text-[28px]"
-              style={{ fontFamily: "var(--font-alex-brush), cursive" }}
+              key={link.href}
+              href={link.href}
+              style={{
+                fontFamily:  "var(--font-inter), sans-serif",
+                fontSize:    18,
+                color:       `rgba(240,235,227,.92)`,
+                textDecoration: "none",
+                textShadow:  navLinkShadow,
+                transition:  "color 200ms, opacity 200ms",
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.color   = STONE;
+                e.currentTarget.style.opacity = "1";
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.color   = `rgba(240,235,227,.92)`;
+                e.currentTarget.style.opacity = "1";
+              }}
             >
-              Amy Casanova Real Estate
+              {link.label}
             </Link>
-          </div>
+          ))}
+        </nav>
 
-          {/* CENTER: Nav links (desktop only) */}
-          <nav className="hidden md:flex flex-row items-center gap-7">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-linen text-sm hover:text-brand-stone transition-colors"
-                style={{ fontFamily: "var(--font-inter), sans-serif" }}
-              >
-                {link.label}
-              </Link>
-            ))}
-
-            {/* Resources dropdown */}
-            <div
-              className="relative"
-              onMouseEnter={() => setResourcesOpen(true)}
-              onMouseLeave={() => setResourcesOpen(false)}
-            >
-              <button
-                className="text-linen text-sm hover:text-brand-stone transition-colors flex items-center gap-1"
-                style={{ fontFamily: "var(--font-inter), sans-serif" }}
-                aria-expanded={resourcesOpen}
-                aria-haspopup="true"
-              >
-                Resources
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                  <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                </svg>
-              </button>
-
-              {resourcesOpen && (
-                <div className="absolute top-full left-0 mt-2 w-52 bg-steel rounded-lg shadow-xl
-                                border border-linen/10 py-2 z-50">
-                  {resourceLinks.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      className="block px-4 py-2.5 text-linen text-sm hover:bg-brand-slate/60
-                                 transition-colors"
-                      style={{ fontFamily: "var(--font-inter), sans-serif" }}
-                      onClick={() => setResourcesOpen(false)}
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-          </nav>
-
-          {/* RIGHT: KW Logo (desktop only) + Hamburger (mobile only) */}
-          <div className="flex flex-row items-center gap-4">
-            <div className="hidden md:block">
-              <Image
-                src="/images/kw-logo.png"
-                width={80}
-                height={40}
-                alt="Keller Williams"
-                style={{ objectFit: "contain" }}
-              />
-            </div>
-
-            {/* Hamburger button */}
-            <button
-              className="md:hidden text-linen text-2xl focus:outline-none"
-              onClick={() => setMenuOpen(true)}
-              aria-label="Open menu"
-            >
-              <svg
-                width="28"
-                height="28"
-                viewBox="0 0 28 28"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <rect y="5"    width="28" height="2.5" rx="1.25" fill="#F0EBE3" />
-                <rect y="12.75" width="28" height="2.5" rx="1.25" fill="#F0EBE3" />
-                <rect y="20.5" width="28" height="2.5" rx="1.25" fill="#F0EBE3" />
-              </svg>
-            </button>
-          </div>
-        </div>
+        {/* ── MOBILE RIGHT: Phone number only ── */}
+        <a
+          href="tel:9285309393"
+          className="desk:hidden"
+          style={{ textDecoration: "none" }}
+        >
+          <span style={{
+            fontFamily: "var(--font-inter), sans-serif",
+            fontWeight: 500,
+            fontSize:   20,
+            color:      LINEN,
+            textShadow,
+          }}>
+            928.530.9393
+          </span>
+        </a>
       </header>
 
-      <MobileMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
+      {/* ── Mobile full-screen overlay menu ───────────────────────────────── */}
+      <div
+        aria-hidden={!menuOpen}
+        style={{
+          position:   "fixed",
+          inset:      0,
+          zIndex:     100,
+          background: SLATE,
+          transform:  menuOpen ? "translateX(0)" : "translateX(-100%)",
+          transition: "transform 350ms cubic-bezier(.7,0,.3,1)",
+          display:    "flex",
+          flexDirection: "column",
+          overflowY:  "auto",
+        }}
+      >
+        {/* Close button */}
+        <div style={{ display: "flex", justifyContent: "flex-end", padding: "20px 24px" }}>
+          <button
+            onClick={() => setMenuOpen(false)}
+            aria-label="Close menu"
+            style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}
+          >
+            <CloseIcon />
+          </button>
+        </div>
+
+        {/* Nav links */}
+        <nav style={{ flex: 1, display: "flex", flexDirection: "column", padding: "12px 32px" }}>
+          {NAV_LINKS.map(link => (
+            <Link
+              key={link.href}
+              href={link.href}
+              onClick={() => setMenuOpen(false)}
+              style={{
+                fontFamily:     "var(--font-inter), sans-serif",
+                fontSize:       22,
+                color:          LINEN,
+                textDecoration: "none",
+                padding:        "18px 0",
+                borderBottom:   "1px solid rgba(240,235,227,.08)",
+                display:        "block",
+              }}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+
+        {/* Phone number at bottom */}
+        <div style={{ padding: "32px", borderTop: "1px solid rgba(240,235,227,.08)" }}>
+          <a href="tel:9285309393" style={{ textDecoration: "none" }}>
+            <div style={{
+              fontFamily:    "var(--font-inter), sans-serif",
+              fontSize:      14,
+              textTransform: "uppercase",
+              letterSpacing: ".15em",
+              color:         STONE,
+              marginBottom:  6,
+            }}>
+              Call Amy
+            </div>
+            <div style={{
+              fontFamily: "var(--font-inter), sans-serif",
+              fontWeight: 500,
+              fontSize:   22,
+              color:      LINEN,
+            }}>
+              928.530.9393
+            </div>
+          </a>
+        </div>
+      </div>
     </>
   );
 }

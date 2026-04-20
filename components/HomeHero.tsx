@@ -1,85 +1,229 @@
-import Image from "next/image";
-import Link from "next/link";
+"use client";
+
+import Image    from "next/image";
+import NextLink from "next/link";
+
+const LINEN = "#F0EBE3";
+const STONE = "#B8A898";
+const SLATE = "#212529";
 
 export default function HomeHero() {
   return (
-    <section className="relative min-h-screen bg-brand-slate overflow-hidden flex items-center">
-      {/* Headshot — full bleed on mobile, right side on desktop */}
-      <div className="absolute inset-0 md:left-[35%]">
-        <Image
-          src="/images/headshot.jpg"
-          alt="Amy Casanova, Realtor"
-          fill
-          className="object-cover object-top"
-          priority
-          sizes="(max-width: 768px) 100vw, 65vw"
-        />
-      </div>
+    <section
+      style={{
+        position:   "relative",
+        height:     "100vh",
+        minHeight:  680,
+        width:      "100%",
+        overflow:   "hidden",
+      }}
+    >
+      {/* Background photo */}
+      <Image
+        src="/images/hero-sunset.jpg"
+        alt="Kingman, Arizona at sunset"
+        fill
+        priority
+        style={{ objectFit: "cover", objectPosition: "center 40%" }}
+        sizes="100vw"
+      />
 
-      {/* Mobile overlay — dark wash for text readability */}
-      <div className="absolute inset-0 bg-brand-slate/75 md:hidden" />
+      {/* Gradient overlay */}
+      <div
+        style={{
+          position:   "absolute",
+          inset:      0,
+          background: "linear-gradient(180deg, rgba(33,37,41,.15) 0%, rgba(33,37,41,.35) 45%, rgba(33,37,41,.85) 100%)",
+        }}
+      />
 
-      {/* Desktop gradient — solid left, fades to transparent */}
-      <div className="absolute inset-0 hidden md:block bg-gradient-to-r from-brand-slate from-[30%] via-brand-slate/95 via-[42%] to-transparent" />
-
-      {/* Content */}
-      <div className="relative z-10 px-8 md:px-16 py-24 max-w-xl">
-        <p
-          className="text-brand-stone text-sm uppercase tracking-[0.1em] mb-4"
-          style={{ fontFamily: "var(--font-inter), sans-serif" }}
+      {/* Centered content */}
+      <div
+        style={{
+          position:       "absolute",
+          inset:          0,
+          display:        "flex",
+          flexDirection:  "column",
+          alignItems:     "center",
+          justifyContent: "center",
+          textAlign:      "center",
+          padding:        "0 24px",
+        }}
+      >
+        {/* Logo lockup */}
+        <div
+          className="hero-fade-up w-[88vw] max-w-[520px] desk:w-[80vw] desk:max-w-[720px]"
+          style={{
+            marginBottom:   28,
+            filter:         "drop-shadow(0 6px 24px rgba(0,0,0,.45))",
+            animationDelay: "0ms",
+          }}
         >
-          Kingman&apos;s Most Trusted Realtor
-        </p>
+          <Image
+            src="/images/logo-lockup-white.png"
+            alt="Amy Casanova Real Estate — Keller Williams Arizona Living Realty"
+            width={720}
+            height={160}
+            style={{ width: "100%", height: "auto" }}
+            priority
+          />
+        </div>
+
+        {/* Headline */}
         <h1
-          className="text-linen font-medium leading-[1.1] text-[36px] md:text-[56px] mb-5"
-          style={{ fontFamily: "var(--font-inter), sans-serif" }}
+          className="hero-fade-up"
+          style={{
+            fontFamily:     "var(--font-inter), sans-serif",
+            fontWeight:     300,
+            fontSize:       "clamp(2.25rem, 5.5vw, 4rem)",
+            color:          LINEN,
+            letterSpacing:  "-.01em",
+            lineHeight:     1.05,
+            textShadow:     "0 4px 40px rgba(0,0,0,.4)",
+            margin:         0,
+            animationDelay: "100ms",
+          }}
         >
-          Find Your Place<br />in the Desert
+          Where Every{" "}
+          <span
+            style={{
+              fontFamily:    "var(--font-alex-brush), cursive",
+              fontSize:      "1.5em",
+              display:       "inline-block",
+              verticalAlign: "baseline",
+            }}
+          >
+            Sunset
+          </span>{" "}
+          Feels Like Home
         </h1>
+
+        {/* Subheadline */}
         <p
-          className="text-brand-stone text-[16px] md:text-[18px] mb-10 leading-relaxed"
-          style={{ fontFamily: "var(--font-inter), sans-serif" }}
+          className="hero-fade-up"
+          style={{
+            fontFamily:     "var(--font-inter), sans-serif",
+            fontWeight:     700,
+            fontSize:       "clamp(0.875rem, 2vw, 1.4375rem)",
+            color:          STONE,
+            letterSpacing:  ".15em",
+            marginTop:      20,
+            animationDelay: "200ms",
+          }}
         >
-          Serving Kingman, Golden Valley, Bullhead City &amp; Fort Mohave since 2013
+          KINGMAN · GOLDEN VALLEY · BULLHEAD CITY · FORT MOHAVE
         </p>
-        <div className="flex flex-col sm:flex-row gap-4">
-          <Link
+
+        {/* CTA buttons */}
+        <div
+          className="hero-fade-up"
+          style={{
+            display:        "flex",
+            flexWrap:       "wrap",
+            gap:            16,
+            justifyContent: "center",
+            marginTop:      40,
+            animationDelay: "300ms",
+          }}
+        >
+          {/* Primary */}
+          <NextLink
             href="/search-properties"
-            className="inline-block bg-linen text-brand-slate text-sm font-medium px-7 py-3 rounded
-                       hover:bg-brand-stone transition-colors text-center"
-            style={{ fontFamily: "var(--font-inter), sans-serif" }}
+            className="group"
+            style={{
+              display:        "inline-flex",
+              alignItems:     "center",
+              gap:            8,
+              background:     LINEN,
+              color:          SLATE,
+              borderRadius:   999,
+              fontFamily:     "var(--font-inter), sans-serif",
+              fontWeight:     500,
+              fontSize:       14,
+              padding:        "16px 28px",
+              textDecoration: "none",
+              transition:     "background 200ms",
+              whiteSpace:     "nowrap",
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = STONE; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = LINEN; }}
           >
             Search Properties
-          </Link>
-          <Link
+            <span
+              className="group-hover:translate-x-1"
+              style={{ display: "inline-block", transition: "transform 200ms" }}
+            >
+              →
+            </span>
+          </NextLink>
+
+          {/* Secondary */}
+          <NextLink
             href="/home-value"
-            className="inline-block border border-linen text-linen text-sm font-medium px-7 py-3 rounded
-                       hover:bg-linen/10 transition-colors text-center"
-            style={{ fontFamily: "var(--font-inter), sans-serif" }}
+            style={{
+              display:        "inline-flex",
+              alignItems:     "center",
+              background:     "transparent",
+              color:          LINEN,
+              border:         `1px solid ${LINEN}`,
+              borderRadius:   999,
+              fontFamily:     "var(--font-inter), sans-serif",
+              fontWeight:     500,
+              fontSize:       14,
+              padding:        "16px 28px",
+              textDecoration: "none",
+              transition:     "background 200ms, color 200ms",
+              whiteSpace:     "nowrap",
+            }}
+            onMouseEnter={e => {
+              const el = e.currentTarget as HTMLElement;
+              el.style.background = LINEN;
+              el.style.color      = SLATE;
+            }}
+            onMouseLeave={e => {
+              const el = e.currentTarget as HTMLElement;
+              el.style.background = "transparent";
+              el.style.color      = LINEN;
+            }}
           >
             What&apos;s My Home Worth?
-          </Link>
+          </NextLink>
         </div>
       </div>
 
       {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce">
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="text-linen opacity-70"
+      <div
+        style={{
+          position:       "absolute",
+          bottom:         36,
+          left:           "50%",
+          transform:      "translateX(-50%)",
+          display:        "flex",
+          flexDirection:  "column",
+          alignItems:     "center",
+          gap:            10,
+        }}
+      >
+        <span
+          style={{
+            fontFamily:    "var(--font-inter), sans-serif",
+            fontSize:      11,
+            textTransform: "uppercase",
+            letterSpacing: ".2em",
+            color:         "rgba(240,235,227,.7)",
+          }}
         >
-          <path
-            d="M6 9L12 15L18 9"
-            stroke="#F0EBE3"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+          Scroll
+        </span>
+        <div
+          style={{
+            width:           1,
+            height:          36,
+            background:      LINEN,
+            transformOrigin: "top",
+            animation:       "scrollPulse 2s ease-in-out infinite",
+          }}
+        />
       </div>
     </section>
   );
