@@ -161,25 +161,43 @@ export default function Header() {
           </div>
         </a>
 
-        {/* ── MOBILE LEFT: Hamburger ── */}
-        <button
+        {/* ── MOBILE LEFT: Hamburger + phone number together ── */}
+        <div
           className="desk:hidden"
-          onClick={() => setMenuOpen(true)}
-          aria-label="Open menu"
-          style={{
-            width:      40,
-            height:     40,
-            background: "none",
-            border:     "none",
-            cursor:     "pointer",
-            display:    "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding:    0,
-          }}
+          style={{ display: "flex", alignItems: "center", gap: 12 }}
         >
-          <HamburgerIcon />
-        </button>
+          <button
+            onClick={() => setMenuOpen(true)}
+            aria-label="Open menu"
+            style={{
+              width:      40,
+              height:     40,
+              background: "none",
+              border:     "none",
+              cursor:     "pointer",
+              display:    "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding:    0,
+            }}
+          >
+            <HamburgerIcon />
+          </button>
+          <a
+            href="tel:9285309393"
+            style={{ textDecoration: "none" }}
+          >
+            <span style={{
+              fontFamily: "var(--font-inter), sans-serif",
+              fontWeight: 500,
+              fontSize:   20,
+              color:      LINEN,
+              textShadow,
+            }}>
+              928.530.9393
+            </span>
+          </a>
+        </div>
 
         {/* ── DESKTOP RIGHT: Nav links ── */}
         <nav
@@ -211,32 +229,33 @@ export default function Header() {
             </Link>
           ))}
         </nav>
-
-        {/* ── MOBILE RIGHT: Phone number only ── */}
-        <a
-          href="tel:9285309393"
-          className="desk:hidden"
-          style={{ textDecoration: "none" }}
-        >
-          <span style={{
-            fontFamily: "var(--font-inter), sans-serif",
-            fontWeight: 500,
-            fontSize:   20,
-            color:      LINEN,
-            textShadow,
-          }}>
-            928.530.9393
-          </span>
-        </a>
       </header>
 
-      {/* ── Mobile full-screen overlay menu ───────────────────────────────── */}
+      {/* ── Mobile menu backdrop ──────────────────────────────────────────── */}
+      <div
+        aria-hidden={true}
+        onClick={() => setMenuOpen(false)}
+        style={{
+          position:   "fixed",
+          inset:      0,
+          zIndex:     99,
+          background: "rgba(0,0,0,.5)",
+          opacity:    menuOpen ? 1 : 0,
+          pointerEvents: menuOpen ? "auto" : "none",
+          transition: "opacity 350ms ease",
+        }}
+      />
+
+      {/* ── Mobile menu panel (1/3 screen, slides from left) ─────────────── */}
       <div
         aria-hidden={!menuOpen}
         style={{
           position:   "fixed",
-          inset:      0,
+          top:        0,
+          left:       0,
+          bottom:     0,
           zIndex:     100,
+          width:      "max(280px, 33vw)",
           background: SLATE,
           transform:  menuOpen ? "translateX(0)" : "translateX(-100%)",
           transition: "transform 350ms cubic-bezier(.7,0,.3,1)",

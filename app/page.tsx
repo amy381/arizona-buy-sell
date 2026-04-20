@@ -19,20 +19,20 @@ export default function Home() {
       {/* 3 — Watch & Learn */}
       <WatchAndLearnSection />
 
-      {/* 4 — Featured Listings */}
-      <FeaturedListingsSection />
-
-      {/* 5 — Nestimate CTA */}
+      {/* 4 — Nestimate CTA */}
       <NestimateCTASection />
 
-      {/* 6 — Communities */}
+      {/* 5 — Communities */}
       <CommunitiesSection />
 
-      {/* 7 — Stats Bar */}
+      {/* 6 — Stats Bar */}
       <StatsBar />
 
-      {/* 8 — Testimonials */}
+      {/* 7 — Testimonials */}
       <TestimonialsSection />
+
+      {/* 8 — Featured Listings */}
+      <FeaturedListingsSection />
     </main>
   );
 }
