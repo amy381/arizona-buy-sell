@@ -1,3 +1,5 @@
+"use client";
+
 import { FaInstagram, FaFacebook, FaTiktok, FaYoutube } from "react-icons/fa";
 
 const LINEN = "#F0EBE3";
