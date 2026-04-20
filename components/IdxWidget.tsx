@@ -18,10 +18,10 @@ export default function IdxWidget({ widgetId }: IdxWidgetProps) {
     script.type = "text/javascript";
     script.id = scriptId;
     script.src = `//arizonabuyandsell.idxbroker.com/idx/widgets/${widgetId}`;
-    document.body.appendChild(script);
+    document.head.appendChild(script);
 
     return () => {
-      const existing = document.getElementById(scriptId);
+      const existing = document.head.querySelector(`#${scriptId}`);
       if (existing) existing.remove();
     };
   }, [widgetId, scriptId]);

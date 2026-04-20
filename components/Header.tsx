@@ -110,63 +110,12 @@ export default function Header() {
           transition:        "all 350ms ease",
         }}
       >
-        {/* ── DESKTOP LEFT: Call Amy button ── */}
-        <a
-          href="tel:9285309393"
-          className="hidden desk:flex items-center gap-3 group"
-          style={{ textDecoration: "none", opacity: 1, transition: "opacity 200ms" }}
-          onMouseEnter={e => (e.currentTarget.style.opacity = ".85")}
-          onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
-        >
-          {/* Icon circle */}
-          <div
-            style={{
-              width:        38,
-              height:       38,
-              borderRadius: "50%",
-              background:   iconCircleBg,
-              border:       "1px solid rgba(240,235,227,.3)",
-              display:      "flex",
-              alignItems:   "center",
-              justifyContent: "center",
-              color:        LINEN,
-              transition:   "background 350ms ease",
-              flexShrink:   0,
-            }}
-          >
-            <PhoneIcon />
-          </div>
-          {/* Text lines */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
-            <span style={{
-              fontFamily:    "var(--font-inter), sans-serif",
-              fontSize:      10,
-              textTransform: "uppercase",
-              letterSpacing: ".22em",
-              color:         `rgba(240,235,227,.75)`,
-              textShadow,
-            }}>
-              Call Amy
-            </span>
-            <span style={{
-              fontFamily: "var(--font-inter), sans-serif",
-              fontWeight: 500,
-              fontSize:   22,
-              color:      LINEN,
-              textShadow,
-              lineHeight: 1,
-            }}>
-              928.530.9393
-            </span>
-          </div>
-        </a>
+        {/* ── LEFT: Hamburger (mobile-only) + Call Amy (always) ── */}
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
 
-        {/* ── MOBILE LEFT: Hamburger + phone number together ── */}
-        <div
-          className="desk:hidden"
-          style={{ display: "flex", alignItems: "center", gap: 12 }}
-        >
+          {/* Hamburger — hidden on desktop */}
           <button
+            className="desk:hidden"
             onClick={() => setMenuOpen(true)}
             aria-label="Open menu"
             style={{
@@ -183,23 +132,59 @@ export default function Header() {
           >
             <HamburgerIcon />
           </button>
+
+          {/* Call Amy — always visible */}
           <a
             href="tel:9285309393"
-            style={{ textDecoration: "none" }}
+            style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", opacity: 1, transition: "opacity 200ms" }}
+            onMouseEnter={e => (e.currentTarget.style.opacity = ".85")}
+            onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
           >
-            <span style={{
-              fontFamily: "var(--font-inter), sans-serif",
-              fontWeight: 500,
-              fontSize:   20,
-              color:      LINEN,
-              textShadow,
-            }}>
-              928.530.9393
-            </span>
+            {/* Icon circle */}
+            <div
+              style={{
+                width:        38,
+                height:       38,
+                borderRadius: "50%",
+                background:   iconCircleBg,
+                border:       "1px solid rgba(240,235,227,.3)",
+                display:      "flex",
+                alignItems:   "center",
+                justifyContent: "center",
+                color:        LINEN,
+                transition:   "background 350ms ease",
+                flexShrink:   0,
+              }}
+            >
+              <PhoneIcon />
+            </div>
+            {/* Text lines */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+              <span style={{
+                fontFamily:    "var(--font-inter), sans-serif",
+                fontSize:      10,
+                textTransform: "uppercase",
+                letterSpacing: ".22em",
+                color:         `rgba(240,235,227,.75)`,
+                textShadow,
+              }}>
+                Call Amy
+              </span>
+              <span style={{
+                fontFamily: "var(--font-inter), sans-serif",
+                fontWeight: 500,
+                fontSize:   22,
+                color:      LINEN,
+                textShadow,
+                lineHeight: 1,
+              }}>
+                928.530.9393
+              </span>
+            </div>
           </a>
         </div>
 
-        {/* ── DESKTOP RIGHT: Nav links ── */}
+        {/* ── RIGHT: Nav links (desktop-only) ── */}
         <nav
           className="hidden desk:flex"
           style={{ gap: 28, alignItems: "center" }}
