@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
+import Link           from "next/link";
+import { usePathname } from "next/navigation";
 
 const NAV_LINKS = [
   { label: "Home",              href: "/"                  },
@@ -51,18 +52,27 @@ function CloseIcon() {
 }
 
 export default function Header() {
-  const [scrolled,  setScrolled]  = useState(false);
+  const pathname    = usePathname();
+  const isHomepage  = pathname === "/";
+
+  // Non-homepage pages start in the scrolled (frosted glass) state immediately.
+  // Homepage starts transparent and transitions on scroll.
+  const [scrolled,  setScrolled]  = useState(!isHomepage);
   const [menuOpen,  setMenuOpen]  = useState(false);
 
   useEffect(() => {
+    if (!isHomepage) {
+      setScrolled(true);
+      return;
+    }
     function onScroll() {
       setScrolled(window.scrollY > window.innerHeight - 120);
     }
-    // Run once on mount to handle hard-reload mid-page
+    // Evaluate immediately on mount (handles hard-reload mid-page)
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [isHomepage]);
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
