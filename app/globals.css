@@ -1,6 +1,15 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Alex Brush";
+  src: url("/fonts/alex-brush-v23-latin.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
+  --font-alex-brush: "Alex Brush", cursive;
   --color-slate: #212529;
   --color-linen: #F0EBE3;
   --color-stone: #B8A898;
