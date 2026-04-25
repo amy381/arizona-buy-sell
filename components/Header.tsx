@@ -11,6 +11,7 @@ const NAV_LINKS = [
   { label: "Communities",       href: "/communities"       },
   { label: "Sell",              href: "/sell"              },
   { label: "About",             href: "/about"             },
+  { label: "Follow Along",      href: "/follow-along"      },
   { label: "Contact",           href: "/contact"           },
 ];
 
