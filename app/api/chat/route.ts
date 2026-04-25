@@ -196,7 +196,12 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ content: cleanContent, leadData });
   } catch (err) {
-    console.error("[Chat] Claude API error:", err);
+    const isError = err instanceof Error;
+    console.error("[Chat] Claude API error — message:", isError ? err.message : String(err));
+    console.error("[Chat] Claude API error — type:", isError ? err.constructor?.name : typeof err);
+    console.error("[Chat] Claude API error — stack:", isError ? err.stack : "(no stack)");
+    console.error("[Chat] ANTHROPIC_API_KEY present:", !!process.env.ANTHROPIC_API_KEY);
+    console.error("[Chat] ANTHROPIC_API_KEY prefix:", process.env.ANTHROPIC_API_KEY?.slice(0, 8) ?? "undefined");
     return NextResponse.json(
       { error: "Failed to get response" },
       { status: 500 }
