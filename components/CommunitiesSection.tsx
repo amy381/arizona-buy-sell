@@ -1,3 +1,4 @@
+import Image  from "next/image";
 import Link   from "next/link";
 import FadeIn from "@/components/FadeIn";
 
@@ -10,25 +11,25 @@ const COMMUNITIES = [
     name: "Kingman",
     desc: "Historic Route 66 charm meets mountain-backed desert living.",
     href: "/communities/kingman",
-    bg:  "radial-gradient(ellipse at 60% 40%, #6b4c2e 0%, #3d2b1a 55%, #2a1e11 100%)",
+    hero: "/images/communities/kingman-hero.jpg",
   },
   {
     name: "Golden Valley",
     desc: "Wide-open lots, big skies, and room to breathe.",
     href: "/communities/golden-valley",
-    bg:  "radial-gradient(ellipse at 60% 40%, #b8862a 0%, #7a5520 55%, #3d2b10 100%)",
+    hero: "/images/communities/golden-valley-hero.jpg",
   },
   {
     name: "Bullhead City",
     desc: "Riverfront living along the Colorado with year-round sun.",
     href: "/communities/bullhead-city",
-    bg:  "radial-gradient(ellipse at 60% 40%, #1e5f74 0%, #153d4d 55%, #0c2530 100%)",
+    hero: "/images/communities/bullhead-city-hero.jpg",
   },
   {
     name: "Fort Mohave",
     desc: "Family-friendly neighborhoods and golf-course communities.",
     href: "/communities/fort-mohave",
-    bg:  "radial-gradient(ellipse at 60% 40%, #8b4a2e 0%, #5c2e1a 55%, #361a0e 100%)",
+    hero: "/images/communities/fort-mohave-hero.jpg",
   },
 ];
 
@@ -75,11 +76,17 @@ export default function CommunitiesSection() {
                 className="group relative block rounded-[12px] overflow-hidden no-underline"
                 style={{ aspectRatio: "16/9" }}
               >
-                {/* Background gradient — scales on hover */}
-                <div
-                  className="absolute inset-0 group-hover:scale-105 transition-transform duration-[600ms]"
-                  style={{ background: c.bg }}
-                />
+                {/* Photo — scales on hover */}
+                <div className="absolute inset-0 group-hover:scale-105 transition-transform duration-[600ms]">
+                  <Image
+                    src={c.hero}
+                    alt={c.name}
+                    fill
+                    priority
+                    className="object-cover object-center"
+                    sizes="(max-width: 960px) 100vw, 50vw"
+                  />
+                </div>
                 {/* Overlay */}
                 <div
                   className="absolute inset-0"
