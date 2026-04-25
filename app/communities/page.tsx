@@ -61,7 +61,7 @@ export default function CommunitiesPage() {
       >
         <h1
           style={{
-            fontFamily: "Inter, sans-serif",
+            fontFamily: "'Montserrat', 'Helvetica Neue', Helvetica, Arial, sans-serif",
             fontWeight: 500,
             fontSize:   "clamp(36px, 5vw, 56px)",
             color:      "#faf0e6",
@@ -73,7 +73,7 @@ export default function CommunitiesPage() {
         </h1>
         <p
           style={{
-            fontFamily: "Inter, sans-serif",
+            fontFamily: "'Montserrat', 'Helvetica Neue', Helvetica, Arial, sans-serif",
             fontSize:   "18px",
             color:      "#78716c",
             margin:     0,
@@ -141,7 +141,7 @@ export default function CommunitiesPage() {
                   }}
                 >
                   <p style={{
-                    fontFamily: "Inter, sans-serif",
+                    fontFamily: "'Montserrat', 'Helvetica Neue', Helvetica, Arial, sans-serif",
                     fontWeight: 700,
                     fontSize:   "26px",
                     color:      "#ffffff",
@@ -150,7 +150,7 @@ export default function CommunitiesPage() {
                     {c.name}
                   </p>
                   <p style={{
-                    fontFamily: "Inter, sans-serif",
+                    fontFamily: "'Montserrat', 'Helvetica Neue', Helvetica, Arial, sans-serif",
                     fontSize:   "14px",
                     color:      "rgba(255,255,255,0.80)",
                     margin:     "0 0 16px",
@@ -160,7 +160,7 @@ export default function CommunitiesPage() {
                   </p>
                   <span style={{
                     display:       "inline-block",
-                    fontFamily:    "Inter, sans-serif",
+                    fontFamily:    "'Montserrat', 'Helvetica Neue', Helvetica, Arial, sans-serif",
                     fontSize:      "13px",
                     fontWeight:    600,
                     color:         "#ffffff",

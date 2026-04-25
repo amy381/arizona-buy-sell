@@ -10,7 +10,7 @@
 //     steel:       #2E3338
 //   fontFamily:
 //     alex-brush:  var(--font-alex-brush)  → Alex Brush (Google Fonts)
-//     inter:       var(--font-inter)        → Inter (Google Fonts)
+//     montserrat:  var(--font-montserrat)   → Montserrat (Google Fonts)
 //
 // Content paths scanned by Tailwind v4 (auto-detected):
 //   ./app/**/*.{ts,tsx}
@@ -33,7 +33,7 @@ const config: Config = {
       },
       fontFamily: {
         "alex-brush": ["var(--font-alex-brush)", "cursive"],
-        inter: ["var(--font-inter)", "sans-serif"],
+        montserrat: ["var(--font-montserrat)", "'Helvetica Neue'", "Helvetica", "Arial", "sans-serif"],
       },
     },
   },

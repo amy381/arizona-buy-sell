@@ -23,7 +23,7 @@
   --color-steel: #2E3338;
 
   --font-alex-brush: var(--font-alex-brush);
-  --font-inter: var(--font-inter);
+  --font-montserrat: var(--font-montserrat);
 
   /* Custom breakpoint for the header nav — matches design spec */
   --breakpoint-desk: 60rem; /* 960px */
@@ -36,7 +36,7 @@ html {
 body {
   background: #212529;
   color: #F0EBE3;
-  font-family: var(--font-inter), Inter, sans-serif;
+  font-family: var(--font-montserrat), 'Montserrat', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 @keyframes pageFadeIn {

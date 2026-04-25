@@ -3,7 +3,7 @@ import Image from "next/image";
 interface PageHeroProps {
   /** Rendered in Alex Brush */
   title: string;
-  /** Rendered in Inter Stone */
+  /** Rendered in Montserrat Stone */
   subtitle?: string;
   /** If provided, image is used as full-width background with dark overlay */
   imageSrc?: string;
@@ -51,7 +51,7 @@ export default function PageHero({
         {subtitle && (
           <p
             className="text-brand-stone text-[16px] md:text-[18px] mt-4 max-w-xl mx-auto leading-relaxed"
-            style={{ fontFamily: "var(--font-inter), sans-serif" }}
+            style={{ fontFamily: "var(--font-montserrat), 'Helvetica Neue', Helvetica, Arial, sans-serif" }}
           >
             {subtitle}
           </p>
