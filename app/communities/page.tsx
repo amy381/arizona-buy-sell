@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link  from "next/link";
 
 export const metadata: Metadata = {
@@ -104,20 +103,16 @@ export default function CommunitiesPage() {
             >
               <div
                 style={{
-                  position:     "relative",
-                  aspectRatio:  "4/3",
-                  borderRadius: "12px",
-                  overflow:     "hidden",
-                  cursor:       "pointer",
+                  position:           "relative",
+                  aspectRatio:        "4/3",
+                  borderRadius:       "12px",
+                  overflow:           "hidden",
+                  cursor:             "pointer",
+                  backgroundImage:    `url(${c.hero})`,
+                  backgroundSize:     "cover",
+                  backgroundPosition: "center",
                 }}
               >
-                <Image
-                  src={c.hero}
-                  alt={c.name}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  style={{ objectFit: "cover" }}
-                />
                 {/* gradient overlay */}
                 <div
                   style={{
