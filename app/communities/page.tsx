@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link  from "next/link";
 
 export const metadata: Metadata = {
@@ -13,28 +14,32 @@ export const metadata: Metadata = {
 
 const COMMUNITIES = [
   {
-    slug:  "kingman",
-    name:  "Kingman",
-    desc:  "The heart of Route 66 — mountain views, affordable living, and small-town charm.",
-    hero:  "/images/communities/kingman-hero.jpg",
+    slug: "kingman",
+    name: "Kingman",
+    desc: "The heart of Route 66 — mountain views, affordable living, and small-town charm.",
+    hero: "/images/communities/kingman-hero.jpg",
+    alt:  "Kingman, Arizona",
   },
   {
-    slug:  "golden-valley",
-    name:  "Golden Valley",
-    desc:  "Rural desert living with star-filled skies, one-acre lots, and mountain views.",
-    hero:  "/images/communities/golden-valley-hero.jpg",
+    slug: "golden-valley",
+    name: "Golden Valley",
+    desc: "Rural desert living with star-filled skies, one-acre lots, and mountain views.",
+    hero: "/images/communities/golden-valley-hero.jpg",
+    alt:  "Golden Valley, Arizona",
   },
   {
-    slug:  "bullhead-city",
-    name:  "Bullhead City",
-    desc:  "Colorado River living, 300+ days of sun, and Laughlin right across the bridge.",
-    hero:  "/images/communities/bullhead-city-hero.jpg",
+    slug: "bullhead-city",
+    name: "Bullhead City",
+    desc: "Colorado River living, 300+ days of sun, and Laughlin right across the bridge.",
+    hero: "/images/communities/bullhead-city-hero.jpg",
+    alt:  "Bullhead City, Arizona",
   },
   {
-    slug:  "fort-mohave",
-    name:  "Fort Mohave",
-    desc:  "Modern growth meets deep history along the Colorado River.",
-    hero:  "/images/communities/fort-mohave-hero.jpg",
+    slug: "fort-mohave",
+    name: "Fort Mohave",
+    desc: "Modern growth meets deep history along the Colorado River.",
+    hero: "/images/communities/fort-mohave-hero.jpg",
+    alt:  "Fort Mohave, Arizona",
   },
 ];
 
@@ -44,24 +49,24 @@ export default function CommunitiesPage() {
       {/* Hero */}
       <section
         style={{
-          minHeight:       "40vh",
-          background:      "#1e293b",
-          display:         "flex",
-          flexDirection:   "column",
-          alignItems:      "center",
-          justifyContent:  "center",
-          textAlign:       "center",
-          padding:         "64px 24px",
+          minHeight:      "40vh",
+          background:     "#1e293b",
+          display:        "flex",
+          flexDirection:  "column",
+          alignItems:     "center",
+          justifyContent: "center",
+          textAlign:      "center",
+          padding:        "64px 24px",
         }}
       >
         <h1
           style={{
-            fontFamily:  "Inter, sans-serif",
-            fontWeight:  500,
-            fontSize:    "clamp(36px, 5vw, 56px)",
-            color:       "#faf0e6",
-            margin:      "0 0 16px",
-            lineHeight:  1.15,
+            fontFamily: "Inter, sans-serif",
+            fontWeight: 500,
+            fontSize:   "clamp(36px, 5vw, 56px)",
+            color:      "#faf0e6",
+            margin:     "0 0 16px",
+            lineHeight: 1.15,
           }}
         >
           Our Communities
@@ -88,11 +93,11 @@ export default function CommunitiesPage() {
       >
         <div
           style={{
-            maxWidth:             "1100px",
-            margin:               "0 auto",
-            display:              "grid",
-            gridTemplateColumns:  "repeat(auto-fit, minmax(460px, 1fr))",
-            gap:                  "28px",
+            maxWidth:            "1100px",
+            margin:              "0 auto",
+            display:             "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(460px, 1fr))",
+            gap:                 "28px",
           }}
         >
           {COMMUNITIES.map((c) => (
@@ -101,27 +106,38 @@ export default function CommunitiesPage() {
               href={`/communities/${c.slug}`}
               style={{ textDecoration: "none", display: "block" }}
             >
+              {/* Card */}
               <div
                 style={{
-                  position:           "relative",
-                  aspectRatio:        "4/3",
-                  borderRadius:       "12px",
-                  overflow:           "hidden",
-                  cursor:             "pointer",
-                  backgroundImage:    `url(${c.hero})`,
-                  backgroundSize:     "cover",
-                  backgroundPosition: "center",
+                  position:     "relative",
+                  minHeight:    "320px",
+                  borderRadius: "12px",
+                  overflow:     "hidden",
+                  cursor:       "pointer",
                 }}
               >
-                {/* gradient overlay */}
+                {/* Photo */}
+                <Image
+                  src={c.hero}
+                  alt={c.alt}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  style={{ objectFit: "cover" }}
+                  priority
+                />
+
+                {/* Gradient overlay */}
                 <div
                   style={{
-                    position:   "absolute",
-                    inset:      0,
-                    background: "linear-gradient(to top, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0.20) 55%, transparent 100%)",
+                    position: "absolute",
+                    inset:    0,
+                    background:
+                      "linear-gradient(to top, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0.20) 55%, transparent 100%)",
+                    zIndex: 1,
                   }}
                 />
-                {/* text */}
+
+                {/* Text */}
                 <div
                   style={{
                     position: "absolute",
@@ -129,15 +145,16 @@ export default function CommunitiesPage() {
                     left:     0,
                     right:    0,
                     padding:  "28px 28px 24px",
+                    zIndex:   10,
                   }}
                 >
                   <p
                     style={{
-                      fontFamily:  "Inter, sans-serif",
-                      fontWeight:  700,
-                      fontSize:    "26px",
-                      color:       "#ffffff",
-                      margin:      "0 0 6px",
+                      fontFamily: "Inter, sans-serif",
+                      fontWeight: 700,
+                      fontSize:   "26px",
+                      color:      "#ffffff",
+                      margin:     "0 0 6px",
                     }}
                   >
                     {c.name}
@@ -155,16 +172,16 @@ export default function CommunitiesPage() {
                   </p>
                   <span
                     style={{
-                      display:         "inline-block",
-                      fontFamily:      "Inter, sans-serif",
-                      fontSize:        "13px",
-                      fontWeight:      600,
-                      color:           "#ffffff",
-                      border:          "1.5px solid rgba(255,255,255,0.70)",
-                      borderRadius:    "999px",
-                      padding:         "6px 18px",
-                      letterSpacing:   "0.04em",
-                      textTransform:   "uppercase",
+                      display:       "inline-block",
+                      fontFamily:    "Inter, sans-serif",
+                      fontSize:      "13px",
+                      fontWeight:    600,
+                      color:         "#ffffff",
+                      border:        "1.5px solid rgba(255,255,255,0.70)",
+                      borderRadius:  "999px",
+                      padding:       "6px 18px",
+                      letterSpacing: "0.04em",
+                      textTransform: "uppercase",
                     }}
                   >
                     Explore {c.name} →
