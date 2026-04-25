@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 const GREETING =
   "Hey there! 👋 I'm Amy's AI assistant. I can help you with finding homes, answering questions about Kingman, Golden Valley, Bullhead City, or Fort Mohave, or getting you connected with Amy directly. What can I help you with?";
@@ -94,6 +95,8 @@ const STYLES = `
 `;
 
 export default function ChatWidget() {
+  const pathname = usePathname();
+
   const [isOpen,       setIsOpen]       = useState(false);
   const [hasOpened,    setHasOpened]    = useState(false);
   const [messages,     setMessages]     = useState<Message[]>([]);
@@ -110,6 +113,8 @@ export default function ChatWidget() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef       = useRef<HTMLInputElement>(null);
+
+  if (pathname.startsWith("/admin")) return null;
 
   // Auto-scroll to bottom on new messages or typing indicator change
   useEffect(() => {
