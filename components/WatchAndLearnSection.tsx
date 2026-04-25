@@ -9,22 +9,22 @@ const VIDEOS = [
   {
     category: "MARKET UPDATE",
     title:    "Kingman Real Estate Trends — Spring 2026",
-    duration: "6:42",
+    embedUrl: "https://www.youtube-nocookie.com/embed/xFRYSOA1a5g",
   },
   {
     category: "FIRST-TIME BUYER",
     title:    "5 Mistakes New Arizona Homebuyers Make",
-    duration: "8:15",
+    embedUrl: "https://www.youtube-nocookie.com/embed/fDOg9G86sCI",
   },
   {
     category: "COMMUNITY TOUR",
     title:    "A Day in Fort Mohave — Neighborhood Tour",
-    duration: "12:03",
+    embedUrl: "https://www.youtube-nocookie.com/embed/2NMNwSpKGxA",
   },
   {
     category: "SELLER TIPS",
     title:    "How to Stage a Desert Home That Actually Sells",
-    duration: "4:58",
+    embedUrl: "https://www.youtube-nocookie.com/embed/l4-2UUjfseE",
   },
 ];
 
@@ -71,44 +71,26 @@ export default function WatchAndLearnSection() {
         <div className="grid grid-cols-1 desk:grid-cols-2 gap-8 mt-16">
           {VIDEOS.map((v, i) => (
             <FadeIn key={v.title} delay={i * 100}>
-              <a
-                href="#"
-                className="group block rounded-[14px] overflow-hidden no-underline
-                           hover:-translate-y-1 transition-transform duration-300"
+              <div
+                className="rounded-[14px] overflow-hidden"
                 style={{ background: STEEL }}
               >
-                {/* Thumbnail */}
-                <div
-                  className="relative w-full"
-                  style={{ aspectRatio: "16/9", background: "linear-gradient(135deg,#3a4148,#262b30)" }}
-                >
-                  {/* Play button */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div
-                      className="group-hover:scale-110 transition-transform duration-300"
-                      style={{
-                        width: 68, height: 68, borderRadius: "50%",
-                        background: LINEN,
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                      }}
-                    >
-                      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                        <polygon points="8,4 19,11 8,18" fill={SLATE} />
-                      </svg>
-                    </div>
-                  </div>
-                  {/* Duration badge */}
-                  <div
-                    className="absolute bottom-2.5 right-2.5"
+                {/* Embed */}
+                <div className="relative w-full" style={{ aspectRatio: "16/9" }}>
+                  <iframe
+                    src={v.embedUrl}
+                    title={v.title}
+                    loading="lazy"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
                     style={{
-                      background: "rgba(33,37,41,.85)",
-                      color: LINEN,
-                      fontFamily: "var(--font-inter), sans-serif",
-                      fontSize: 11, padding: "4px 8px", borderRadius: 4,
+                      position: "absolute",
+                      inset: 0,
+                      width: "100%",
+                      height: "100%",
+                      border: "none",
                     }}
-                  >
-                    {v.duration}
-                  </div>
+                  />
                 </div>
 
                 {/* Meta */}
@@ -129,7 +111,7 @@ export default function WatchAndLearnSection() {
                     {v.title}
                   </p>
                 </div>
-              </a>
+              </div>
             </FadeIn>
           ))}
         </div>
