@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
-import PageHero from "@/components/PageHero";
+import CommunityPageTemplate from "@/components/CommunityPageTemplate";
 
-export const metadata: Metadata = { title: "Fort Mohave | Amy Casanova Real Estate" };
+export const metadata: Metadata = {
+  title:       "Fort Mohave Homes for Sale | Amy Casanova Real Estate",
+  description: "Fort Mohave, AZ homes for sale — modern growth meets deep history along the Colorado River. Amy Casanova, Western Arizona's top Realtor.",
+  openGraph: {
+    title:       "Fort Mohave Homes for Sale | Amy Casanova Real Estate",
+    description: "Fort Mohave, AZ homes for sale — modern growth meets deep history along the Colorado River. Amy Casanova, Western Arizona's top Realtor.",
+    images:      [{ url: "/images/communities/fort-mohave-hero.jpg" }],
+    type:        "website",
+  },
+};
 
 export default function FortMohavePage() {
-  return (
-    <main className="page-fade">
-      <PageHero title="Fort Mohave" subtitle="Full community guide coming soon." />
-      <section className="bg-brand-slate min-h-[40vh]" />
-    </main>
-  );
+  return <CommunityPageTemplate slug="fort-mohave" />;
 }

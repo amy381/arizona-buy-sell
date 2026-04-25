@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
-import PageHero from "@/components/PageHero";
+import CommunityPageTemplate from "@/components/CommunityPageTemplate";
 
-export const metadata: Metadata = { title: "Bullhead City | Amy Casanova Real Estate" };
+export const metadata: Metadata = {
+  title:       "Bullhead City Homes for Sale | Amy Casanova Real Estate",
+  description: "Bullhead City, AZ homes for sale — Colorado River living, 300+ days of sun, and Laughlin across the bridge. Amy Casanova, top Mohave County Realtor.",
+  openGraph: {
+    title:       "Bullhead City Homes for Sale | Amy Casanova Real Estate",
+    description: "Bullhead City, AZ homes for sale — Colorado River living, 300+ days of sun, and Laughlin across the bridge. Amy Casanova, top Mohave County Realtor.",
+    images:      [{ url: "/images/communities/bullhead-city-hero.jpg" }],
+    type:        "website",
+  },
+};
 
 export default function BullheadCityPage() {
-  return (
-    <main className="page-fade">
-      <PageHero title="Bullhead City" subtitle="Full community guide coming soon." />
-      <section className="bg-brand-slate min-h-[40vh]" />
-    </main>
-  );
+  return <CommunityPageTemplate slug="bullhead-city" />;
 }

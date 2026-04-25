@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
-import PageHero from "@/components/PageHero";
+import CommunityPageTemplate from "@/components/CommunityPageTemplate";
 
-export const metadata: Metadata = { title: "Golden Valley | Amy Casanova Real Estate" };
+export const metadata: Metadata = {
+  title:       "Golden Valley Homes for Sale | Amy Casanova Real Estate",
+  description: "Golden Valley, AZ homes for sale — rural desert living with star-filled skies, one-acre lots, and mountain views. Amy Casanova, Mohave County Realtor.",
+  openGraph: {
+    title:       "Golden Valley Homes for Sale | Amy Casanova Real Estate",
+    description: "Golden Valley, AZ homes for sale — rural desert living with star-filled skies, one-acre lots, and mountain views. Amy Casanova, Mohave County Realtor.",
+    images:      [{ url: "/images/communities/golden-valley-hero.jpg" }],
+    type:        "website",
+  },
+};
 
 export default function GoldenValleyPage() {
-  return (
-    <main className="page-fade">
-      <PageHero title="Golden Valley" subtitle="Full community guide coming soon." />
-      <section className="bg-brand-slate min-h-[40vh]" />
-    </main>
-  );
+  return <CommunityPageTemplate slug="golden-valley" />;
 }
