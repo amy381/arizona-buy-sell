@@ -46,7 +46,7 @@ const COMMUNITIES = [
 export default function CommunitiesPage() {
   return (
     <main>
-      {/* Hero */}
+      {/* ── Hero ────────────────────────────────────────────────────────── */}
       <section
         style={{
           minHeight:      "40vh",
@@ -84,13 +84,8 @@ export default function CommunitiesPage() {
         </p>
       </section>
 
-      {/* Community Cards Grid */}
-      <section
-        style={{
-          background: "#0f172a",
-          padding:    "72px 24px 96px",
-        }}
-      >
+      {/* ── Cards Grid ──────────────────────────────────────────────────── */}
+      <section style={{ background: "#0f172a", padding: "72px 24px 96px" }}>
         <div
           style={{
             maxWidth:            "1100px",
@@ -106,84 +101,75 @@ export default function CommunitiesPage() {
               href={`/communities/${c.slug}`}
               style={{ textDecoration: "none", display: "block" }}
             >
-              {/* Card */}
+              {/*
+               * Explicit height (not just min-height) is required so that
+               * next/image fill children can resolve height: 100% correctly.
+               * This matches the exact pattern used in CommunityPageTemplate hero.
+               */}
               <div
-                style={{
-                  position:     "relative",
-                  minHeight:    "320px",
-                  borderRadius: "12px",
-                  overflow:     "hidden",
-                  cursor:       "pointer",
-                }}
+                className="relative overflow-hidden"
+                style={{ height: "360px", borderRadius: "12px", cursor: "pointer" }}
               >
                 {/* Photo */}
                 <Image
                   src={c.hero}
                   alt={c.alt}
                   fill
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  style={{ objectFit: "cover" }}
                   priority
+                  className="object-cover object-center"
+                  sizes="(max-width: 768px) 100vw, 50vw"
                 />
 
                 {/* Gradient overlay */}
                 <div
+                  className="absolute inset-0"
                   style={{
-                    position: "absolute",
-                    inset:    0,
-                    background:
-                      "linear-gradient(to top, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0.20) 55%, transparent 100%)",
+                    background: "linear-gradient(to top, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0.20) 55%, transparent 100%)",
                     zIndex: 1,
                   }}
                 />
 
                 {/* Text */}
                 <div
+                  className="absolute"
                   style={{
-                    position: "absolute",
-                    bottom:   0,
-                    left:     0,
-                    right:    0,
-                    padding:  "28px 28px 24px",
-                    zIndex:   10,
+                    bottom:  0,
+                    left:    0,
+                    right:   0,
+                    padding: "28px 28px 24px",
+                    zIndex:  10,
                   }}
                 >
-                  <p
-                    style={{
-                      fontFamily: "Inter, sans-serif",
-                      fontWeight: 700,
-                      fontSize:   "26px",
-                      color:      "#ffffff",
-                      margin:     "0 0 6px",
-                    }}
-                  >
+                  <p style={{
+                    fontFamily: "Inter, sans-serif",
+                    fontWeight: 700,
+                    fontSize:   "26px",
+                    color:      "#ffffff",
+                    margin:     "0 0 6px",
+                  }}>
                     {c.name}
                   </p>
-                  <p
-                    style={{
-                      fontFamily: "Inter, sans-serif",
-                      fontSize:   "14px",
-                      color:      "rgba(255,255,255,0.80)",
-                      margin:     "0 0 16px",
-                      lineHeight: 1.5,
-                    }}
-                  >
+                  <p style={{
+                    fontFamily: "Inter, sans-serif",
+                    fontSize:   "14px",
+                    color:      "rgba(255,255,255,0.80)",
+                    margin:     "0 0 16px",
+                    lineHeight: 1.5,
+                  }}>
                     {c.desc}
                   </p>
-                  <span
-                    style={{
-                      display:       "inline-block",
-                      fontFamily:    "Inter, sans-serif",
-                      fontSize:      "13px",
-                      fontWeight:    600,
-                      color:         "#ffffff",
-                      border:        "1.5px solid rgba(255,255,255,0.70)",
-                      borderRadius:  "999px",
-                      padding:       "6px 18px",
-                      letterSpacing: "0.04em",
-                      textTransform: "uppercase",
-                    }}
-                  >
+                  <span style={{
+                    display:       "inline-block",
+                    fontFamily:    "Inter, sans-serif",
+                    fontSize:      "13px",
+                    fontWeight:    600,
+                    color:         "#ffffff",
+                    border:        "1.5px solid rgba(255,255,255,0.70)",
+                    borderRadius:  "999px",
+                    padding:       "6px 18px",
+                    letterSpacing: "0.04em",
+                    textTransform: "uppercase",
+                  }}>
                     Explore {c.name} →
                   </span>
                 </div>
