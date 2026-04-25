@@ -177,8 +177,12 @@ export async function POST(req: NextRequest) {
       { role: "assistant", content: cleanContent },
     ];
 
+    console.log("[Chat] Supabase upsert — attempting. sessionId:", sessionId,
+      "| SUPABASE_URL present:", !!process.env.SUPABASE_URL,
+      "| SUPABASE_SERVICE_ROLE_KEY present:", !!process.env.SUPABASE_SERVICE_ROLE_KEY);
+
     try {
-      const { error: dbError } = await getSupabase()
+      const { data, error: dbError } = await getSupabase()
         .from("chat_conversations")
         .upsert(
           {
@@ -188,10 +192,20 @@ export async function POST(req: NextRequest) {
             last_message_at: new Date().toISOString(),
           },
           { onConflict: "session_id" }
-        );
-      if (dbError) console.error("[Chat] Supabase upsert error:", dbError);
+        )
+        .select("id, session_id");
+
+      if (dbError) {
+        console.error("[Chat] Supabase upsert error — code:", dbError.code,
+          "| message:", dbError.message,
+          "| details:", dbError.details,
+          "| hint:", dbError.hint);
+      } else {
+        console.log("[Chat] Supabase upsert success — row:", JSON.stringify(data));
+      }
     } catch (dbErr) {
-      console.error("[Chat] Supabase connection error:", dbErr);
+      const isErr = dbErr instanceof Error;
+      console.error("[Chat] Supabase connection threw —", isErr ? dbErr.message : String(dbErr));
     }
 
     return NextResponse.json({ content: cleanContent, leadData });
