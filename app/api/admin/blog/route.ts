@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
   }
 
   const { password, action } = body;
-  if (password !== process.env.ADMIN_PASSWORD) {
+  if (!password || password !== process.env.ADMIN_PASSWORD) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

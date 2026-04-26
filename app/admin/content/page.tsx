@@ -255,11 +255,24 @@ export default function AdminContentPage() {
     setAuthLoading(true);
     setAuthError("");
     try {
-      const data = await apiBlog(password, "list");
+      const res = await fetch("/api/admin/blog", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ password, action: "list" }),
+      });
+      if (res.status === 401) {
+        setAuthError("Incorrect password.");
+        return;
+      }
+      if (!res.ok) {
+        setAuthError("Something went wrong. Try again.");
+        return;
+      }
+      const data = await res.json() as Record<string, unknown>;
       setPosts((data.posts as Post[]) ?? []);
       setAuthed(true);
     } catch {
-      setAuthError("Incorrect password.");
+      setAuthError("Something went wrong. Try again.");
     } finally {
       setAuthLoading(false);
     }
