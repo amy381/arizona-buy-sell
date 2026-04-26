@@ -197,10 +197,10 @@ export default function Footer() {
             &copy; 2026 Amy Casanova Real Estate. All rights reserved.
           </span>
           <div style={{ display: "flex", gap: 20 }}>
-            {["Privacy", "Terms", "Fair Housing", "Accessibility"].map(label => (
+            {["Privacy", "Terms", "Fair Housing", "Accessibility", "Admin"].map((label) => (
               <a
                 key={label}
-                href="#"
+                href={label === "Admin" ? "/admin/content" : "#"}
                 className="hover:text-linen transition-colors duration-200"
                 style={{
                   fontFamily:     "var(--font-inter), sans-serif",
