@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
+import { isAdminAuthorized } from "@/lib/adminSession";
 
 // ── Column mapping notes ──────────────────────────────────────────────────────
 // The existing blog_posts table uses:
@@ -27,8 +28,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const { password, action } = body;
-  if (!password || password !== process.env.ADMIN_PASSWORD) {
+  const { action } = body;
+  if (!isAdminAuthorized(req, body)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

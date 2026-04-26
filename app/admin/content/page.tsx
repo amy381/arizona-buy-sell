@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AdminNav from "@/components/AdminNav";
 
 const FONT  = "var(--font-montserrat), 'Helvetica Neue', Helvetica, Arial, sans-serif";
@@ -44,14 +44,13 @@ function fmtDate(iso: string | null) {
 }
 
 async function apiBlog(
-  password: string,
   action: string,
   data: Record<string, unknown> = {}
 ): Promise<Record<string, unknown>> {
   const res = await fetch("/api/admin/blog", {
     method:  "POST",
     headers: { "Content-Type": "application/json" },
-    body:    JSON.stringify({ password, action, ...data }),
+    body:    JSON.stringify({ action, ...data }),
   });
   const json = await res.json() as Record<string, unknown>;
   if (!res.ok) throw new Error((json.error as string) || `HTTP ${res.status}`);
@@ -212,10 +211,25 @@ function GeneratorTab({
 
 export default function AdminContentPage() {
   // ── Auth ──────────────────────────────────────────────────────────────────
-  const [password,    setPassword]    = useState("");
-  const [authed,      setAuthed]      = useState(false);
-  const [authError,   setAuthError]   = useState("");
-  const [authLoading, setAuthLoading] = useState(false);
+  const [password,       setPassword]       = useState("");
+  const [authed,         setAuthed]         = useState(false);
+  const [authError,      setAuthError]      = useState("");
+  const [authLoading,    setAuthLoading]    = useState(false);
+  const [sessionChecked, setSessionChecked] = useState(false);
+
+  // Try cookie session on mount
+  useEffect(() => {
+    apiBlog("list")
+      .then((data) => {
+        setPosts((data.posts as Post[]) ?? []);
+        setAuthed(true);
+      })
+      .catch(() => {
+        // 401 or error — show login form
+      })
+      .finally(() => setSessionChecked(true));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ── Tabs ──────────────────────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState<TabId>("blog");
@@ -255,20 +269,14 @@ export default function AdminContentPage() {
     setAuthLoading(true);
     setAuthError("");
     try {
-      const res = await fetch("/api/admin/blog", {
+      const sessionRes = await fetch("/api/admin/session", {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ password, action: "list" }),
+        body:    JSON.stringify({ password }),
       });
-      if (res.status === 401) {
-        setAuthError("Incorrect password.");
-        return;
-      }
-      if (!res.ok) {
-        setAuthError("Something went wrong. Try again.");
-        return;
-      }
-      const data = await res.json() as Record<string, unknown>;
+      if (sessionRes.status === 401) { setAuthError("Incorrect password."); return; }
+      if (!sessionRes.ok) { setAuthError("Something went wrong. Try again."); return; }
+      const data = await apiBlog("list");
       setPosts((data.posts as Post[]) ?? []);
       setAuthed(true);
     } catch {
@@ -283,7 +291,7 @@ export default function AdminContentPage() {
     setPostsLoading(true);
     setPostsError("");
     try {
-      const data = await apiBlog(password, "list");
+      const data = await apiBlog("list");
       setPosts((data.posts as Post[]) ?? []);
     } catch (err) {
       setPostsError(err instanceof Error ? err.message : "Failed to load posts.");
@@ -322,7 +330,7 @@ export default function AdminContentPage() {
   async function fetchPostBody(id: number) {
     setBodyLoading(true);
     try {
-      const data = await apiBlog(password, "get", { id });
+      const data = await apiBlog("get", { id });
       const post = data.post as (Post & { content: string });
       if (post?.content !== undefined) setFBody(post.content);
     } catch {
@@ -358,7 +366,7 @@ export default function AdminContentPage() {
     setBlogMsg("");
     try {
       if (editPost) {
-        await apiBlog(password, "update", {
+        await apiBlog("update", {
           id:        editPost.id,
           title:     fTitle,
           excerpt:   fExcerpt,
@@ -366,7 +374,7 @@ export default function AdminContentPage() {
           published: publish,
         });
       } else {
-        await apiBlog(password, "create", {
+        await apiBlog("create", {
           title:     fTitle,
           excerpt:   fExcerpt,
           body:      fBody,
@@ -386,7 +394,7 @@ export default function AdminContentPage() {
   // ── Blog: toggle publish ──────────────────────────────────────────────────
   async function togglePublish(post: Post) {
     try {
-      await apiBlog(password, "update", { id: post.id, published: !post.published });
+      await apiBlog("update", { id: post.id, published: !post.published });
       await loadPosts();
     } catch (err) {
       console.error("[Content Admin] togglePublish error:", err);
@@ -397,7 +405,7 @@ export default function AdminContentPage() {
   async function deletePost(post: Post) {
     if (!confirm(`Delete "${post.title}"? This cannot be undone.`)) return;
     try {
-      await apiBlog(password, "delete", { id: post.id });
+      await apiBlog("delete", { id: post.id });
       await loadPosts();
     } catch (err) {
       console.error("[Content Admin] delete error:", err);
@@ -427,6 +435,18 @@ export default function AdminContentPage() {
     await navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  }
+
+  // ── Render: Loading (session check in progress) ───────────────────────────
+  if (!sessionChecked) {
+    return (
+      <>
+        <AdminNav />
+        <div className="min-h-screen bg-brand-slate flex items-center justify-center">
+          <p className="text-brand-stone text-sm" style={{ fontFamily: FONT }}>Loading…</p>
+        </div>
+      </>
+    );
   }
 
   // ── Render: Login ─────────────────────────────────────────────────────────

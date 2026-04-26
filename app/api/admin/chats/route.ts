@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
+import { isAdminAuthorized } from "@/lib/adminSession";
 
 export async function POST(req: NextRequest) {
-  const { password } = await req.json();
+  let body: Record<string, unknown> = {};
+  try { body = await req.json(); } catch {}
 
-  if (!password || password !== process.env.ADMIN_PASSWORD) {
+  if (!isAdminAuthorized(req, body)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
