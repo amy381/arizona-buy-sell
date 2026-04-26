@@ -39,7 +39,7 @@ export default async function BlogIndexPage() {
     const { data } = await getSupabase()
       .from("blog_posts")
       .select("id, slug, title, excerpt, published_at")
-      .eq("published", true)
+      .eq("status", "published")
       .order("published_at", { ascending: false });
     posts = data ?? [];
   } catch {

@@ -156,7 +156,7 @@ export async function POST(req: NextRequest) {
     try {
       await getSupabase()
         .from("generated_content")
-        .insert({ content_type: type, prompt_inputs: inputs, generated_text: text });
+        .insert({ type, input_data: inputs, output_text: text });
     } catch (dbErr) {
       console.error("[Generate] Supabase insert failed:", dbErr);
     }

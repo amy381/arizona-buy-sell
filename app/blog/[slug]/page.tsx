@@ -16,8 +16,8 @@ interface Post {
   slug:         string;
   title:        string;
   excerpt:      string;
-  body:         string;
-  published:    boolean;
+  content:      string;
+  status:       string;
   published_at: string | null;
 }
 
@@ -27,7 +27,7 @@ async function getPost(slug: string): Promise<Post | null> {
       .from("blog_posts")
       .select("*")
       .eq("slug", slug)
-      .eq("published", true)
+      .eq("status", "published")
       .single();
     return data ?? null;
   } catch {
@@ -194,7 +194,7 @@ export default async function BlogPostPage(
             }}
           >
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {post.body}
+              {post.content}
             </ReactMarkdown>
           </div>
 

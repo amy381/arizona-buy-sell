@@ -1,6 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabase } from "@/lib/supabase";
 
+// ── Column mapping notes ──────────────────────────────────────────────────────
+// The existing blog_posts table uses:
+//   content  (not body)
+//   status   text "published"|"draft"  (not published boolean)
+// The existing generated_content table uses:
+//   type        (not content_type)
+//   input_data  (not prompt_inputs)
+//   output_text (not generated_text)
+
 function slugify(title: string): string {
   return title
     .toLowerCase()
@@ -29,10 +38,21 @@ export async function POST(req: NextRequest) {
     case "list": {
       const { data, error } = await db
         .from("blog_posts")
-        .select("id, slug, title, excerpt, published, published_at, created_at")
+        .select("id, slug, title, excerpt, status, published_at, created_at")
         .order("created_at", { ascending: false });
-      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-      return NextResponse.json({ posts: data ?? [] });
+      if (error) {
+        console.error("[Admin/blog] list — Supabase error:", {
+          code: error.code, message: error.message,
+          details: error.details, hint: error.hint,
+        });
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
+      // Map status string → published boolean for the frontend
+      const posts = (data ?? []).map((p) => ({
+        ...p,
+        published: p.status === "published",
+      }));
+      return NextResponse.json({ posts });
     }
 
     case "get": {
@@ -43,9 +63,21 @@ export async function POST(req: NextRequest) {
         .select("*")
         .eq("id", id)
         .single();
-      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      if (error) {
+        console.error("[Admin/blog] get — Supabase error:", {
+          code: error.code, message: error.message,
+          details: error.details, hint: error.hint,
+        });
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
       if (!data) return NextResponse.json({ error: "Not found" }, { status: 404 });
-      return NextResponse.json({ post: data });
+      // Map content → body, status → published for the frontend
+      const post = {
+        ...data,
+        body:      data.content,
+        published: data.status === "published",
+      };
+      return NextResponse.json({ post });
     }
 
     case "create": {
@@ -53,7 +85,7 @@ export async function POST(req: NextRequest) {
       if (!title || !postBody) {
         return NextResponse.json({ error: "title and body are required" }, { status: 400 });
       }
-      const slug       = slugify(String(title));
+      const slug        = slugify(String(title));
       const isPublished = !!published;
       const { data, error } = await db
         .from("blog_posts")
@@ -61,13 +93,19 @@ export async function POST(req: NextRequest) {
           slug,
           title,
           excerpt:      excerpt || "",
-          body:         postBody,
-          published:    isPublished,
+          content:      postBody,                                // code: body
+          status:       isPublished ? "published" : "draft",    // code: published boolean
           published_at: isPublished ? new Date().toISOString() : null,
         })
         .select("id, slug")
         .single();
-      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      if (error) {
+        console.error("[Admin/blog] create — Supabase error:", {
+          code: error.code, message: error.message,
+          details: error.details, hint: error.hint,
+        });
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
       return NextResponse.json({ post: data });
     }
 
@@ -78,9 +116,9 @@ export async function POST(req: NextRequest) {
       const updates: Record<string, unknown> = {};
       if (title    !== undefined) updates.title   = title;
       if (excerpt  !== undefined) updates.excerpt = excerpt;
-      if (postBody !== undefined) updates.body    = postBody;
+      if (postBody !== undefined) updates.content = postBody;          // code: body
       if (published !== undefined) {
-        updates.published    = published;
+        updates.status       = published ? "published" : "draft";      // code: published boolean
         updates.published_at = published ? new Date().toISOString() : null;
       }
 
@@ -90,7 +128,13 @@ export async function POST(req: NextRequest) {
         .eq("id", id)
         .select("id, slug")
         .single();
-      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      if (error) {
+        console.error("[Admin/blog] update — Supabase error:", {
+          code: error.code, message: error.message,
+          details: error.details, hint: error.hint,
+        });
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
       return NextResponse.json({ post: data });
     }
 
@@ -98,7 +142,13 @@ export async function POST(req: NextRequest) {
       const { id } = body as { id: number };
       if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 });
       const { error } = await db.from("blog_posts").delete().eq("id", id);
-      if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+      if (error) {
+        console.error("[Admin/blog] delete — Supabase error:", {
+          code: error.code, message: error.message,
+          details: error.details, hint: error.hint,
+        });
+        return NextResponse.json({ error: error.message }, { status: 500 });
+      }
       return NextResponse.json({ ok: true });
     }
 

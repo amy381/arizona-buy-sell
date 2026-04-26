@@ -323,8 +323,8 @@ export default function AdminContentPage() {
     setBodyLoading(true);
     try {
       const data = await apiBlog(password, "get", { id });
-      const post = data.post as (Post & { body: string });
-      if (post?.body !== undefined) setFBody(post.body);
+      const post = data.post as (Post & { content: string });
+      if (post?.content !== undefined) setFBody(post.content);
     } catch {
       // fail silently — user can type body manually
     } finally {
