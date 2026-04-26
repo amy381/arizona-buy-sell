@@ -441,7 +441,7 @@ export default function AdminContentPage() {
   if (!sessionChecked) {
     return (
       <>
-        <AdminNav />
+        <AdminNav tabs={TABS} activeTab={activeTab} onTabChange={(id) => handleTabChange(id as TabId)} />
         <div className="min-h-screen bg-brand-slate flex items-center justify-center">
           <p className="text-brand-stone text-sm" style={{ fontFamily: FONT }}>Loading…</p>
         </div>
@@ -453,7 +453,7 @@ export default function AdminContentPage() {
   if (!authed) {
     return (
       <>
-        <AdminNav />
+        <AdminNav tabs={TABS} activeTab={activeTab} onTabChange={(id) => handleTabChange(id as TabId)} />
         <div className="min-h-screen bg-brand-slate flex items-center justify-center px-6">
           <form
             onSubmit={handleLogin}
@@ -490,50 +490,8 @@ export default function AdminContentPage() {
   // ── Render: Dashboard ─────────────────────────────────────────────────────
   return (
     <>
-      <AdminNav />
+      <AdminNav tabs={TABS} activeTab={activeTab} onTabChange={(id) => handleTabChange(id as TabId)} />
       <div className="min-h-screen bg-brand-slate" style={{ fontFamily: FONT }}>
-
-        {/* ── Page header ── */}
-        <div style={{
-          background:   DARK,
-          borderBottom: "1px solid rgba(184,168,152,.1)",
-          padding:      "24px 32px",
-        }}>
-          <h1 className="text-linen font-medium text-[22px]" style={{ margin: 0 }}>
-            Content Studio
-          </h1>
-        </div>
-
-        {/* ── Tab bar ── */}
-        <div style={{
-          background:   STEEL,
-          borderBottom: "1px solid rgba(184,168,152,.12)",
-          padding:      "0 32px",
-          display:      "flex",
-          overflowX:    "auto",
-        }}>
-          {TABS.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => handleTabChange(tab.id)}
-              style={{
-                background:   "none",
-                border:       "none",
-                borderBottom: activeTab === tab.id ? `2px solid ${STONE}` : "2px solid transparent",
-                color:        activeTab === tab.id ? LINEN : STONE,
-                fontFamily:   FONT,
-                fontSize:     13,
-                fontWeight:   activeTab === tab.id ? 600 : 400,
-                padding:      "16px 20px",
-                cursor:       "pointer",
-                whiteSpace:   "nowrap",
-                transition:   "color 200ms",
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
 
         {/* ── Tab content ── */}
         <div style={{ padding: "32px" }} className="max-w-[1240px] mx-auto">
