@@ -26,7 +26,7 @@ export default function FacebookFeed() {
   // Spread data-* props via object to satisfy TypeScript's JSX strict checks
   const fbPageProps = {
     "data-href":                   "https://www.facebook.com/amy.casanova.355732",
-    "data-tabs":                   "videos",
+    "data-tabs":                   "timeline",
     "data-width":                  "500",
     "data-height":                 "600",
     "data-small-header":           "true",
