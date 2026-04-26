@@ -81,6 +81,9 @@ export default function Header() {
     return () => { document.body.style.overflow = ""; };
   }, [menuOpen]);
 
+  // Admin pages use their own AdminNav — suppress the main site header there
+  if (pathname.startsWith("/admin")) return null;
+
   const textShadow       = scrolled ? "none" : "0 2px 10px rgba(0,0,0,.45)";
   const navLinkShadow    = scrolled ? "none" : "0 1px 8px rgba(0,0,0,.3)";
   const iconCircleBg     = scrolled ? "transparent" : "rgba(240,235,227,.1)";
