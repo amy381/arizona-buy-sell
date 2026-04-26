@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getSupabase } from "@/lib/supabase";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title:       "Blog — Amy Casanova Real Estate | Western Arizona",
   description: "Real estate tips, market updates, and Western Arizona community insights from Amy Casanova.",
