@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import AdminNav from "@/components/AdminNav";
 
 interface Submission {
   id:               number;
@@ -64,7 +65,9 @@ export default function AdminNestimatePage() {
   /* ── Login screen ── */
   if (!authed) {
     return (
-      <div className="min-h-screen bg-brand-slate flex items-center justify-center px-6">
+      <>
+        <AdminNav />
+        <div className="min-h-screen bg-brand-slate flex items-center justify-center px-6">
         <form
           onSubmit={handleLogin}
           className="bg-steel rounded-2xl p-8 w-full max-w-sm flex flex-col gap-5"
@@ -95,11 +98,14 @@ export default function AdminNestimatePage() {
           </button>
         </form>
       </div>
+      </>
     );
   }
 
   /* ── Submissions table ── */
   return (
+    <>
+    <AdminNav />
     <div
       className="min-h-screen bg-brand-slate px-6 py-12"
       style={{ fontFamily: "var(--font-inter), sans-serif" }}
@@ -185,5 +191,6 @@ export default function AdminNestimatePage() {
         )}
       </div>
     </div>
+    </>
   );
 }
