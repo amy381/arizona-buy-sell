@@ -168,12 +168,12 @@ export default function FollowAlongPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 desk:grid-cols-3 gap-6">
             {[
-              "https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2Freel%2F1936997850243876%2F&show_text=false&width=267&t=0",
+              "https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2Freel%2F2171947060214106%2F&show_text=false&width=267&t=0",
               "https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2Freel%2F2790364961311760%2F&show_text=false&width=267&t=0",
               "https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2Freel%2F1506228494479404%2F&show_text=false&width=267&t=0",
               "https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2Freel%2F25403527465995881%2F&show_text=false&width=267&t=0",
-              "https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2Freel%2F1911438732802805%2F&show_text=false&width=267&t=0",
-              "https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2Freel%2F1388096886377514%2F&show_text=false&width=267&t=0",
+              "https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2Freel%2F881333827963394%2F&show_text=false&width=267&t=0",
+              "https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2Freel%2F1980348309566161%2F&show_text=false&width=267&t=0",
             ].map((src) => (
               <div
                 key={src}
