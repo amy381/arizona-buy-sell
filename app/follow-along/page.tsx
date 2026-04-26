@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { FaInstagram, FaFacebook, FaTiktok, FaYoutube } from "react-icons/fa";
 import YoutubeSection from "./YoutubeSection";
-import FacebookFeed   from "@/components/FacebookFeed";
 
 export const metadata: Metadata = {
   title:       "Follow Along — Amy Casanova Real Estate | Social Media",
@@ -141,7 +140,7 @@ export default function FollowAlongPage() {
         </div>
       </section>
 
-      {/* ── Section 2: Facebook Feed ──────────────────────────────────────── */}
+      {/* ── Section 2: Facebook Reels ────────────────────────────────────── */}
       <section style={{ background: LINEN, padding: "80px 24px 96px" }}>
         <div className="max-w-[1240px] mx-auto">
 
@@ -154,7 +153,7 @@ export default function FollowAlongPage() {
               letterSpacing: ".25em",
               margin:        "0 0 16px",
             }}>
-              Latest Posts
+              Latest Reels
             </p>
             <h2 style={{
               fontFamily: FONT,
@@ -167,8 +166,37 @@ export default function FollowAlongPage() {
             </h2>
           </div>
 
-          {/* Facebook Page Plugin — may be blank until Meta app domain is allowlisted */}
-          <FacebookFeed />
+          <div className="grid grid-cols-1 sm:grid-cols-2 desk:grid-cols-3 gap-6">
+            {[
+              "https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2Freel%2F1936997850243876%2F&show_text=false&width=267&t=0",
+              "https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2Freel%2F2790364961311760%2F&show_text=false&width=267&t=0",
+              "https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2Freel%2F1506228494479404%2F&show_text=false&width=267&t=0",
+              "https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2Freel%2F25403527465995881%2F&show_text=false&width=267&t=0",
+              "https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2Freel%2F1911438732802805%2F&show_text=false&width=267&t=0",
+              "https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2Freel%2F1388096886377514%2F&show_text=false&width=267&t=0",
+            ].map((src) => (
+              <div
+                key={src}
+                style={{
+                  background:   STEEL,
+                  borderRadius: 14,
+                  overflow:     "hidden",
+                  display:      "flex",
+                  justifyContent: "center",
+                }}
+              >
+                <iframe
+                  src={src}
+                  width="100%"
+                  height="476"
+                  style={{ border: "none", overflow: "hidden", display: "block" }}
+                  scrolling="no"
+                  allowFullScreen
+                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                />
+              </div>
+            ))}
+          </div>
 
           <div style={{ textAlign: "center", marginTop: 40 }}>
             <a
