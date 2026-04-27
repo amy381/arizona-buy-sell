@@ -8,39 +8,45 @@ export const metadata = {
 export default function SearchPropertiesPage() {
   return (
     <>
-      {/* Force every element the IDX script injects to fill its container */}
       <style>{`
-        #idx-widget-151448,
-        #idxwidgetsrc-151448,
-        [id^="idxwidget"] {
-          width: 100% !important;
-          height: 100% !important;
+        /*
+         * IDX Broker injects elements with hardcoded px heights via JS.
+         * Using vh directly here bypasses the % inheritance chain and
+         * overrides any inline style the script sets.
+         */
+        #idx-widget-151448 {
+          display: block !important;
+          width:   100% !important;
+          height:  calc(100vh - 60px) !important;
+          min-height: calc(100vh - 60px) !important;
+          max-height: none !important;
         }
-        .idx-widget-container iframe,
-        .idx-widget-container > div,
-        .idx-widget-container > * {
-          width: 100% !important;
-          height: 100% !important;
+        #idx-widget-151448 > * {
+          width:   100% !important;
+          height:  calc(100vh - 60px) !important;
+          min-height: calc(100vh - 60px) !important;
+          max-height: none !important;
+        }
+        /* Override any inline style="height:___" the IDX script sets */
+        #idx-widget-151448 [style*="height"],
+        #idx-widget-151448 iframe {
+          height:  calc(100vh - 60px) !important;
+          min-height: calc(100vh - 60px) !important;
+          max-height: none !important;
         }
       `}</style>
 
-      <main
-        style={{
-          position:   "relative",
-          marginTop:  60,
-          marginLeft: "calc(-50vw + 50%)",
-          width:      "100vw",
-          height:     "calc(100vh - 60px)",
-          overflow:   "hidden",
-          padding:    0,
-        }}
-      >
-        <div
-          className="idx-widget-container"
-          style={{ width: "100%", height: "100%", padding: 0, margin: 0 }}
-        >
-          <IdxWidget widgetId="151448" />
-        </div>
+      <main style={{
+        position: "fixed",
+        top:      60,
+        left:     0,
+        right:    0,
+        bottom:   0,
+        overflow: "auto",
+        padding:  0,
+        margin:   0,
+      }}>
+        <IdxWidget widgetId="151448" />
       </main>
     </>
   );
