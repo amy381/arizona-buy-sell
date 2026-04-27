@@ -28,5 +28,5 @@ export default function IdxWidget({ widgetId }: IdxWidgetProps) {
     };
   }, [widgetId, scriptId]);
 
-  return <div ref={containerRef} id={`idx-widget-${widgetId}`} className="w-full" />;
+  return <div ref={containerRef} id={`idx-widget-${widgetId}`} style={{ width: "100%", height: "100%" }} />;
 }

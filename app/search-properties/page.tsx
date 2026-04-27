@@ -26,8 +26,8 @@ export default function SearchPropertiesPage() {
           </p>
         </div>
 
-        {/* Widget — full width, no side constraints, generous height */}
-        <div style={{ minHeight: "80vh" }}>
+        {/* Widget — full browser width, no padding, fixed viewport height */}
+        <div style={{ width: "100%", height: "calc(100vh - 200px)", padding: 0, margin: 0 }}>
           <IdxWidget widgetId="151448" />
         </div>
 
