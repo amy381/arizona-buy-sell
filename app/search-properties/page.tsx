@@ -8,8 +8,10 @@ export const metadata = {
 export default function SearchPropertiesPage() {
   return (
     <main>
-      <section className="bg-brand-slate py-12 px-6">
-        <div className="max-w-4xl mx-auto text-center mb-10">
+      <section className="bg-brand-slate">
+
+        {/* Title — padded enough to clear the fixed header */}
+        <div className="max-w-4xl mx-auto text-center pt-28 pb-10 px-6">
           <h1
             className="text-linen text-4xl mb-4"
             style={{ fontFamily: "var(--font-alex-brush), cursive" }}
@@ -23,7 +25,12 @@ export default function SearchPropertiesPage() {
             Browse active listings across Kingman, Golden Valley, Lake Havasu, and all of Mohave County.
           </p>
         </div>
-        <IdxWidget widgetId="151448" />
+
+        {/* Widget — full width, no side constraints, generous height */}
+        <div style={{ minHeight: "80vh" }}>
+          <IdxWidget widgetId="151448" />
+        </div>
+
       </section>
     </main>
   );
