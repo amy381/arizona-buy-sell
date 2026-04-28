@@ -12,6 +12,10 @@ export const metadata: Metadata = {
   },
 };
 
+const SLATE = "#212529";
+const LINEN = "#F0EBE3";
+const STONE = "#B8A898";
+
 const COMMUNITIES = [
   {
     slug: "kingman",
@@ -50,7 +54,7 @@ export default function CommunitiesPage() {
       <section
         style={{
           minHeight:      "40vh",
-          background:     "#1e293b",
+          background:     SLATE,
           display:        "flex",
           flexDirection:  "column",
           alignItems:     "center",
@@ -64,7 +68,7 @@ export default function CommunitiesPage() {
             fontFamily: "'Montserrat', 'Helvetica Neue', Helvetica, Arial, sans-serif",
             fontWeight: 500,
             fontSize:   "clamp(36px, 5vw, 56px)",
-            color:      "#faf0e6",
+            color:      LINEN,
             margin:     "0 0 16px",
             lineHeight: 1.15,
           }}
@@ -75,7 +79,7 @@ export default function CommunitiesPage() {
           style={{
             fontFamily: "'Montserrat', 'Helvetica Neue', Helvetica, Arial, sans-serif",
             fontSize:   "18px",
-            color:      "#78716c",
+            color:      STONE,
             margin:     0,
             maxWidth:   "520px",
           }}
@@ -85,7 +89,7 @@ export default function CommunitiesPage() {
       </section>
 
       {/* ── Cards Grid ──────────────────────────────────────────────────── */}
-      <section style={{ background: "#0f172a", padding: "72px 24px 96px" }}>
+      <section style={{ background: LINEN, padding: "72px 24px 96px" }}>
         <div
           style={{
             maxWidth:            "1100px",
@@ -124,7 +128,7 @@ export default function CommunitiesPage() {
                 <div
                   className="absolute inset-0"
                   style={{
-                    background: "linear-gradient(to top, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0.20) 55%, transparent 100%)",
+                    background: `linear-gradient(to top, rgba(33,37,41,0.80) 0%, rgba(33,37,41,0.20) 55%, transparent 100%)`,
                     zIndex: 1,
                   }}
                 />
@@ -144,7 +148,7 @@ export default function CommunitiesPage() {
                     fontFamily: "'Montserrat', 'Helvetica Neue', Helvetica, Arial, sans-serif",
                     fontWeight: 700,
                     fontSize:   "26px",
-                    color:      "#ffffff",
+                    color:      LINEN,
                     margin:     "0 0 6px",
                   }}>
                     {c.name}
@@ -152,7 +156,7 @@ export default function CommunitiesPage() {
                   <p style={{
                     fontFamily: "'Montserrat', 'Helvetica Neue', Helvetica, Arial, sans-serif",
                     fontSize:   "14px",
-                    color:      "rgba(255,255,255,0.80)",
+                    color:      `rgba(240,235,227,0.80)`,
                     margin:     "0 0 16px",
                     lineHeight: 1.5,
                   }}>
@@ -163,8 +167,8 @@ export default function CommunitiesPage() {
                     fontFamily:    "'Montserrat', 'Helvetica Neue', Helvetica, Arial, sans-serif",
                     fontSize:      "13px",
                     fontWeight:    600,
-                    color:         "#ffffff",
-                    border:        "1.5px solid rgba(255,255,255,0.70)",
+                    color:         LINEN,
+                    border:        `1.5px solid rgba(240,235,227,0.70)`,
                     borderRadius:  "999px",
                     padding:       "6px 18px",
                     letterSpacing: "0.04em",
