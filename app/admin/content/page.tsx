@@ -845,7 +845,7 @@ export default function AdminContentPage() {
               title="Newsletter"
               description="Generate a client newsletter with market insights and tips."
               fields={[
-                { key: "topic",      label: "Main Topic",          placeholder: "Spring buying season in Western Arizona" },
+                { key: "topic",      label: "Main Topic",          placeholder: "Spring buying season in Mohave County" },
                 { key: "audience",   label: "Audience",            placeholder: "Past clients and prospective buyers" },
                 { key: "highlights", label: "Sections to Include", placeholder: "Market update, first-time buyer tip, featured neighborhood…", multiline: true },
               ]}

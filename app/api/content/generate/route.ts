@@ -49,7 +49,7 @@ Tone: ${tone || "warm, professional, informative"}
 Write a complete blog post with:
 - An engaging title (as a # heading)
 - 4-6 sections with ## headings
-- Practical, helpful content for home buyers and sellers in Western Arizona
+- Practical, helpful content for home buyers and sellers in Mohave County
 - A brief call-to-action at the end mentioning Amy Casanova
 
 Format in Markdown. Do not include a meta description or front matter.`,
@@ -59,7 +59,7 @@ Format in Markdown. Do not include a meta description or front matter.`,
     maxTokens: 500,
     buildPrompt: ({ address, beds, baths, sqft, features }) =>
       `Write a compelling MLS listing description for this property:
-Address: ${address || "Western Arizona home"}
+Address: ${address || "Mohave County, AZ home"}
 Beds: ${beds || "—"}, Baths: ${baths || "—"}, Sq Ft: ${sqft || "—"}
 Key features: ${features || "none provided"}
 
@@ -81,7 +81,7 @@ Write one caption (50-150 words). Include 3-5 relevant hashtags at the end. No m
     maxTokens: 1000,
     buildPrompt: ({ area, timeframe, highlights }) =>
       `Write a real estate market update for Amy Casanova's blog.
-Area: ${area || "Western Arizona (Kingman, Bullhead City, Fort Mohave, Golden Valley)"}
+Area: ${area || "Mohave County (Kingman, Bullhead City, Fort Mohave, Golden Valley)"}
 Timeframe: ${timeframe || "current market"}
 Key data/highlights: ${highlights || "use general market commentary"}
 
@@ -97,7 +97,7 @@ Write in Markdown:
     buildPrompt: ({ topic, audience, highlights }) =>
       `Write a real estate newsletter for Amy Casanova to send to her client list.
 Main topic: ${topic}
-Audience: ${audience || "past clients, prospective buyers and sellers in Western Arizona"}
+Audience: ${audience || "past clients, prospective buyers and sellers in Mohave County"}
 Sections to include: ${highlights || "market update, tip of the month, featured listing teaser"}
 
 Write in Markdown:

@@ -13,7 +13,7 @@ const montserrat = Montserrat({
 });
 
 const TITLE       = "Amy Casanova Real Estate | Homes for Sale in Kingman, Golden Valley, Bullhead City & Fort Mohave AZ";
-const DESCRIPTION = "Top 1% Arizona Realtor Amy Casanova — $100M+ sold, 650+ transactions. Search homes, get your free Nestimate valuation, and explore Western Arizona communities.";
+const DESCRIPTION = "Top 1% Arizona Realtor Amy Casanova — $100M+ sold, 650+ transactions. Search homes, get your free Nestimate valuation, and explore Mohave County, AZ communities.";
 const SITE_URL    = "https://arizonabuyandsell.com";
 
 export const metadata: Metadata = {

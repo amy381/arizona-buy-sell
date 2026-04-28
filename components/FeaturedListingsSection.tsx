@@ -34,7 +34,7 @@ export default function FeaturedListingsSection() {
             fontSize: 16, color: "#6a6158",
             margin: 0,
           }}>
-            Hand-picked listings across Western Arizona.
+            Hand-picked listings across Mohave County.
           </p>
         </FadeIn>
 

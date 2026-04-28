@@ -4,7 +4,7 @@ import Link    from "next/link";
 
 export const metadata: Metadata = {
   title: "Buyers Guide | Amy Casanova Real Estate",
-  description: "Your step-by-step guide to buying a home in Western Arizona with Amy Casanova.",
+  description: "Your step-by-step guide to buying a home in Mohave County, AZ with Amy Casanova.",
 };
 
 const STEPS = [
@@ -21,7 +21,7 @@ const STEPS = [
   {
     n: "03",
     heading: "Start Your Search",
-    body: "Use our property search to explore active listings in real time. Amy also has access to off-market opportunities throughout Western Arizona.",
+    body: "Use our property search to explore active listings in real time. Amy also has access to off-market opportunities throughout Mohave County.",
   },
   {
     n: "04",
@@ -45,7 +45,7 @@ export default function BuyersPage() {
     <main className="page-fade">
 
       <PageHero
-        title="Your Guide to Buying in Western Arizona"
+        title="Your Guide to Buying in Mohave County"
         minHeight="min-h-[50vh]"
       />
 

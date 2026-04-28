@@ -54,7 +54,7 @@ export default function Footer() {
               lineHeight: 1.7, maxWidth: 320, margin: "0 0 16px",
             }}>
               Crafting Real Estate Success Stories since 2013 — guiding buyers and sellers
-              across Western Arizona with honesty, hustle, and heart.
+              across Mohave County with honesty, hustle, and heart.
             </p>
             <span style={{
               fontFamily: "var(--font-alex-brush), cursive",
@@ -178,7 +178,7 @@ export default function Footer() {
             textTransform: "uppercase", letterSpacing: ".15em",
             lineHeight: 1.8, margin: 0,
           }}>
-            Licensed Realtor · Western Arizona<br />
+            Licensed Realtor · Mohave County<br />
             Independently Owned &amp; Operated
           </p>
         </div>

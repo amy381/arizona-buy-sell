@@ -127,7 +127,7 @@ const CITIES: Record<string, CommunityConfig> = {
     overviewImage: "/images/communities/kingman-aerial.jpg",
     tagline:      "The Heart of Historic Route 66 — Where Community Runs Deep",
     overview: [
-      "Kingman is the seat of Mohave County and the heart of Western Arizona. Sitting at 3,300 feet elevation along the historic Route 66 corridor, Kingman offers cooler temperatures than the river communities to the west, panoramic mountain views in every direction, and a genuine small-town community feel that newcomers fall in love with almost immediately.",
+      "Kingman is the county seat and heart of Mohave County. Sitting at 3,300 feet elevation along the historic Route 66 corridor, Kingman offers cooler temperatures than the river communities to the west, panoramic mountain views in every direction, and a genuine small-town community feel that newcomers fall in love with almost immediately.",
       "The real estate market in Kingman is one of the most diverse in the region. Buyers can find everything from 40-acre ranches with mountain views to brand-new construction in master-planned communities, historic homes near downtown, and affordable manufactured homes on spacious lots. The median home price remains significantly below the national average, making Kingman one of the best values in Arizona.",
       "Downtown Kingman is experiencing a revival — local restaurants, breweries, and shops are breathing new life into the Route 66 corridor. The Hualapai Mountain Park sits just minutes from town, offering hiking, camping, and elevation-cooled summer escapes. Kingman is also perfectly positioned as a gateway to the Grand Canyon, Las Vegas, and Lake Mead, all within a 90-minute drive.",
       "Whether you are looking for your first home, a retirement destination with four mild seasons, or an investment property in a growing market — Kingman delivers options that most Arizona cities cannot match at this price point.",
@@ -164,7 +164,7 @@ const CITIES: Record<string, CommunityConfig> = {
     overviewImage: "/images/communities/golden-valley-rock.jpg",
     tagline:      "Wide-Open Skies and Room to Breathe",
     overview: [
-      "Golden Valley is where Western Arizona opens up. Located between Kingman and Bullhead City along Highway 68, Golden Valley is an unincorporated community defined by its wide-open spaces, one-acre-plus parcels, and a pace of life that city dwellers dream about. If you have ever wanted to step outside your front door and see nothing but desert, Joshua trees, and mountains — this is the place.",
+      "Golden Valley is where Mohave County opens up. Located between Kingman and Bullhead City along Highway 68, Golden Valley is an unincorporated community defined by its wide-open spaces, one-acre-plus parcels, and a pace of life that city dwellers dream about. If you have ever wanted to step outside your front door and see nothing but desert, Joshua trees, and mountains — this is the place.",
       "The real estate landscape here is almost entirely rural residential. Most properties sit on one-acre lots or larger, many with no HOA restrictions, giving homeowners the freedom to build, garden, keep animals, or simply enjoy the solitude. Manufactured homes and site-built homes coexist throughout the valley, and prices remain among the most affordable in all of Mohave County.",
       "Golden Valley nights are legendary. With almost zero light pollution, the Milky Way is visible with the naked eye on clear evenings. The community is tight-knit and self-sufficient, with a growing number of small businesses, churches, and community organizations that give the area a quiet sense of belonging.",
       "For buyers looking for acreage, privacy, and a lower cost of living without sacrificing access to Kingman or Bullhead City — Golden Valley is the sweet spot. Both cities are a 20 to 30 minute drive in either direction, putting shopping, medical care, and the Colorado River within easy reach.",
@@ -201,7 +201,7 @@ const CITIES: Record<string, CommunityConfig> = {
     overviewImage: "/images/communities/bullhead-city-river.jpg",
     tagline:      "River Living on the Colorado — Where the Sun Never Quits",
     overview: [
-      "Bullhead City sits on the banks of the Colorado River directly across from Laughlin, Nevada, and it is one of Western Arizona's most vibrant communities. With over 300 days of sunshine per year, immediate access to Lake Mohave and the Colorado River, and the Laughlin entertainment corridor right across the bridge — Bullhead City attracts snowbirds, retirees, water sports enthusiasts, and anyone who wants an active outdoor lifestyle year-round.",
+      "Bullhead City sits on the banks of the Colorado River directly across from Laughlin, Nevada, and it is one of Mohave County's most vibrant communities. With over 300 days of sunshine per year, immediate access to Lake Mohave and the Colorado River, and the Laughlin entertainment corridor right across the bridge — Bullhead City attracts snowbirds, retirees, water sports enthusiasts, and anyone who wants an active outdoor lifestyle year-round.",
       "The real estate market here ranges from affordable manufactured homes and starter properties to stunning riverfront estates with private docks. Active 55-plus communities like Vista del Rio and Sun Valley offer resort-style amenities for retirees, while family neighborhoods throughout the city provide solid schools and quiet streets. The Riverwalk is the community hub — a multi-mile paved trail along the river perfect for walking, cycling, and watching the sunset over the Laughlin skyline.",
       "Golfers will find several well-maintained courses including Chaparral Country Club and Mojave Resort Golf Club, both offering desert-mountain scenery that rivals Scottsdale at a fraction of the cost. Boating, jet skiing, kayaking, and fishing on the Colorado River and Lake Mohave are not weekend activities here — they are a way of life.",
       "For buyers who want sunshine, water access, and an active community with entertainment options just a bridge away — Bullhead City is the most lifestyle-rich market in Mohave County.",
@@ -298,7 +298,7 @@ function buildSchema(city: CommunityConfig) {
           "addressRegion":   "AZ",
           "addressCountry":  "US",
         },
-        "description": `Top Realtor serving ${city.name}, AZ and Western Arizona.`,
+        "description": `Top Realtor serving ${city.name}, AZ and Mohave County.`,
       },
     ],
   };

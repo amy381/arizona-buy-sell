@@ -6,13 +6,13 @@ import Link                from "next/link";
 
 export const metadata: Metadata = {
   title: "Sell Your Home | Amy Casanova Real Estate",
-  description: "Strategic pricing, maximum exposure, and results you can count on. Work with Amy Casanova to sell your Western Arizona home.",
+  description: "Strategic pricing, maximum exposure, and results you can count on. Work with Amy Casanova to sell your Mohave County, AZ home.",
 };
 
 const WHY_AMY = [
   {
     heading: "Local Expertise",
-    body: "30 years in Kingman means unmatched market knowledge. Amy knows every neighborhood, every price trend, and every buyer pool in Western Arizona.",
+    body: "30 years in Kingman means unmatched market knowledge. Amy knows every neighborhood, every price trend, and every buyer pool in Mohave County.",
   },
   {
     heading: "Proven Results",

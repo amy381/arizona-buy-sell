@@ -5,11 +5,11 @@ import { getSupabase } from "@/lib/supabase";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title:       "Blog — Amy Casanova Real Estate | Western Arizona",
-  description: "Real estate tips, market updates, and Western Arizona community insights from Amy Casanova.",
+  title:       "Blog — Amy Casanova Real Estate | Mohave County",
+  description: "Real estate tips, market updates, and Mohave County community insights from Amy Casanova.",
   openGraph: {
-    title:       "Blog — Amy Casanova Real Estate | Western Arizona",
-    description: "Real estate tips, market updates, and Western Arizona community insights from Amy Casanova.",
+    title:       "Blog — Amy Casanova Real Estate | Mohave County",
+    description: "Real estate tips, market updates, and Mohave County community insights from Amy Casanova.",
     type:        "website",
   },
 };

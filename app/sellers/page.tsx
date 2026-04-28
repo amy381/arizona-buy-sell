@@ -4,7 +4,7 @@ import Link    from "next/link";
 
 export const metadata: Metadata = {
   title: "Sellers Guide | Amy Casanova Real Estate",
-  description: "Your step-by-step guide to selling your home in Western Arizona with Amy Casanova.",
+  description: "Your step-by-step guide to selling your home in Mohave County, AZ with Amy Casanova.",
 };
 
 const STEPS = [
@@ -45,7 +45,7 @@ export default function SellersPage() {
     <main className="page-fade">
 
       <PageHero
-        title="Your Guide to Selling in Western Arizona"
+        title="Your Guide to Selling in Mohave County"
         minHeight="min-h-[50vh]"
       />
 

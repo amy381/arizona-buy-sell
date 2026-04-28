@@ -63,7 +63,7 @@ export default function CommunitiesSection() {
             fontSize: 16, color: "#6a6158",
             margin: 0,
           }}>
-            Western Arizona&apos;s most sought-after places to call home.
+            Mohave County&apos;s most sought-after places to call home.
           </p>
         </FadeIn>
 

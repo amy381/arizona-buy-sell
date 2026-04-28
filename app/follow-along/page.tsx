@@ -4,10 +4,10 @@ import YoutubeSection from "./YoutubeSection";
 
 export const metadata: Metadata = {
   title:       "Follow Along — Amy Casanova Real Estate | Social Media",
-  description: "Follow Amy Casanova on YouTube, Facebook, Instagram, and TikTok for real estate tips, market updates, community tours, and Western Arizona lifestyle content.",
+  description: "Follow Amy Casanova on YouTube, Facebook, Instagram, and TikTok for real estate tips, market updates, community tours, and Mohave County lifestyle content.",
   openGraph: {
     title:       "Follow Along — Amy Casanova Real Estate | Social Media",
-    description: "Follow Amy Casanova on YouTube, Facebook, Instagram, and TikTok for real estate tips, market updates, community tours, and Western Arizona lifestyle content.",
+    description: "Follow Amy Casanova on YouTube, Facebook, Instagram, and TikTok for real estate tips, market updates, community tours, and Mohave County lifestyle content.",
     type:        "website",
   },
 };
