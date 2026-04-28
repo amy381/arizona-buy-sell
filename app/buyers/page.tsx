@@ -73,7 +73,9 @@ export default function BuyersPage() {
           <div className="mt-16 text-center">
             <p className="text-brand-stone text-sm mb-6">Ready to start your search?</p>
             <Link
-              href="/search-properties"
+              href="https://search.arizonabuyandsell.com"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-block bg-brand-slate text-linen text-sm uppercase tracking-widest
                          px-10 py-4 rounded hover:bg-steel transition-colors"
             >

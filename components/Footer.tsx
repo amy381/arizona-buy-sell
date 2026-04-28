@@ -11,7 +11,7 @@ const SLATE = "#212529";
 
 const NAV_LINKS = [
   { label: "Home",              href: "/"                  },
-  { label: "Search Properties", href: "/search-properties" },
+  { label: "Search Properties", href: "https://search.arizonabuyandsell.com" },
   { label: "Listing Alerts",    href: "/listing-alerts"    },
   { label: "Communities",       href: "/communities"       },
   { label: "Sell",              href: "/sell"              },
@@ -79,6 +79,7 @@ export default function Footer() {
                 <Link
                   key={link.href}
                   href={link.href}
+                  {...(link.href.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                   className="hover:text-brand-stone transition-colors duration-200"
                   style={{
                     fontFamily:     "var(--font-inter), sans-serif",

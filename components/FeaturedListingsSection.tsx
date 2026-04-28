@@ -46,7 +46,9 @@ export default function FeaturedListingsSection() {
         {/* CTA button */}
         <FadeIn delay={200} style={{ textAlign: "center", marginTop: 48 }}>
           <Link
-            href="/search-properties"
+            href="https://search.arizonabuyandsell.com"
+            target="_blank"
+            rel="noopener noreferrer"
             className="group inline-flex items-center gap-2"
             style={{
               background: SLATE, color: "#F0EBE3",

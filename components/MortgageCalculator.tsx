@@ -190,7 +190,9 @@ export default function MortgageCalculator() {
             Ready to find homes in your budget?
           </p>
           <Link
-            href="/search-properties"
+            href="https://search.arizonabuyandsell.com"
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-block bg-linen text-brand-slate text-sm uppercase tracking-widest px-8 py-3 rounded hover:bg-brand-stone transition-colors"
           >
             Search Properties

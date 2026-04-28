@@ -47,7 +47,9 @@ export default function CommunityListingsSection({ cityName }: Props) {
 
         <FadeIn delay={200} style={{ textAlign: "center", marginTop: 48 }}>
           <Link
-            href="/search-properties"
+            href="https://search.arizonabuyandsell.com"
+            target="_blank"
+            rel="noopener noreferrer"
             style={{
               display: "inline-block",
               background: LINEN, color: SLATE,

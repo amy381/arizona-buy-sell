@@ -362,7 +362,9 @@ export default function CommunityPageTemplate({ slug }: { slug: string }) {
             {city.tagline}
           </p>
           <Link
-            href="/search-properties"
+            href="https://search.arizonabuyandsell.com"
+            target="_blank"
+            rel="noopener noreferrer"
             style={{
               display:        "inline-block",
               background:     LINEN,

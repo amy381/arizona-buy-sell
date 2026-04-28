@@ -128,7 +128,9 @@ export default function HomeHero() {
         >
           {/* Primary */}
           <NextLink
-            href="/search-properties"
+            href="https://search.arizonabuyandsell.com"
+            target="_blank"
+            rel="noopener noreferrer"
             className="group"
             style={{
               display:        "inline-flex",

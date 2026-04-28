@@ -5,14 +5,14 @@ import Link           from "next/link";
 import { usePathname } from "next/navigation";
 
 const NAV_LINKS = [
-  { label: "Home",              href: "/"                  },
-  { label: "Search Properties", href: "/search-properties" },
-  { label: "Listing Alerts",    href: "/listing-alerts"    },
-  { label: "Communities",       href: "/communities"       },
-  { label: "Sell",              href: "/sell"              },
-  { label: "About",             href: "/about"             },
-  { label: "Follow Along",      href: "/follow-along"      },
-  { label: "Contact",           href: "/contact"           },
+  { label: "Home",              href: "/",                                        external: false },
+  { label: "Search Properties", href: "https://search.arizonabuyandsell.com",     external: true  },
+  { label: "Listing Alerts",    href: "/listing-alerts",                          external: false },
+  { label: "Communities",       href: "/communities",                             external: false },
+  { label: "Sell",              href: "/sell",                                    external: false },
+  { label: "About",             href: "/about",                                   external: false },
+  { label: "Follow Along",      href: "/follow-along",                            external: false },
+  { label: "Contact",           href: "/contact",                                 external: false },
 ];
 
 const LINEN      = "#F0EBE3";
@@ -197,6 +197,7 @@ export default function Header() {
             <Link
               key={link.href}
               href={link.href}
+              {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
               style={{
                 fontFamily:  "var(--font-inter), sans-serif",
                 fontSize:    18,
@@ -270,6 +271,7 @@ export default function Header() {
             <Link
               key={link.href}
               href={link.href}
+              {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
               onClick={() => setMenuOpen(false)}
               style={{
                 fontFamily:     "var(--font-inter), sans-serif",
