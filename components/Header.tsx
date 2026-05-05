@@ -245,10 +245,10 @@ export default function Header() {
           left:       0,
           bottom:     0,
           zIndex:     100,
-          width:      "max(280px, 33vw)",
+          width:      280,
           background: SLATE,
           transform:  menuOpen ? "translateX(0)" : "translateX(-100%)",
-          transition: "transform 350ms cubic-bezier(.7,0,.3,1)",
+          transition: "transform 300ms ease",
           display:    "flex",
           flexDirection: "column",
           overflowY:  "auto",
@@ -266,7 +266,7 @@ export default function Header() {
         </div>
 
         {/* Nav links */}
-        <nav style={{ flex: 1, display: "flex", flexDirection: "column", padding: "12px 32px" }}>
+        <nav style={{ flex: 1, display: "flex", flexDirection: "column" }}>
           {NAV_LINKS.map(link => (
             <Link
               key={link.href}
@@ -274,11 +274,12 @@ export default function Header() {
               {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
               onClick={() => setMenuOpen(false)}
               style={{
-                fontFamily:     "var(--font-inter), sans-serif",
-                fontSize:       22,
+                fontFamily:     "var(--font-montserrat), sans-serif",
+                fontSize:       16,
+                fontWeight:     500,
                 color:          LINEN,
                 textDecoration: "none",
-                padding:        "18px 0",
+                padding:        "16px 24px",
                 borderBottom:   "1px solid rgba(240,235,227,.08)",
                 display:        "block",
               }}

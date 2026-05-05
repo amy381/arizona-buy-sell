@@ -176,10 +176,17 @@ export default function Footer() {
             fontFamily: "var(--font-inter), sans-serif",
             fontSize: 12, color: LINEN,
             textTransform: "uppercase", letterSpacing: ".15em",
-            lineHeight: 1.8, margin: 0,
+            margin: 0,
           }}>
-            Licensed Realtor · Mohave County<br />
-            Independently Owned &amp; Operated
+            Licensed Realtor · Arizona
+          </p>
+          <p style={{
+            fontFamily: "var(--font-inter), sans-serif",
+            fontSize: 11, color: LINEN,
+            textTransform: "uppercase", letterSpacing: ".06em",
+            margin: 0,
+          }}>
+            Each Keller Williams Office Is Independently Owned And Operated.
           </p>
         </div>
 
