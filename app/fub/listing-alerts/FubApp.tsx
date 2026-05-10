@@ -31,6 +31,9 @@ interface IDXSearchCriteria {
   amax_yearBuilt?: string;
   a_propSubType?: string | string[];
   amax_associationFee?: string;
+  a_fencing?: string | string[];
+  a_parkingFeatures?: string | string[];
+  a_cooling?: string | string[];
 }
 
 interface IDXSearch {
@@ -59,6 +62,9 @@ interface FormValues {
   minYearBuilt: string;
   maxYearBuilt: string;
   maxAssocFee: string;
+  fencing: string[];
+  parkingFeatures: string[];
+  cooling: string[];
   receiveUpdates: boolean;
 }
 
@@ -132,6 +138,36 @@ const BA_OPTIONS = [
   { value: "4", label: "4+" },
 ];
 
+const FENCING_OPTIONS = [
+  "Back Yard",
+  "Block",
+  "Chain Link",
+  "Front Yard",
+  "None",
+  "Privacy",
+  "Stucco Wall",
+];
+
+const PARKING_OPTIONS = [
+  "Air Conditioned Garage",
+  "Attached",
+  "Carport",
+  "Common",
+  "Detached",
+  "Drive Through",
+  "Electric Vehicle Charging Station(s)",
+];
+
+const COOLING_OPTIONS = [
+  "Central Air",
+  "Ductless",
+  "Electric",
+  "Evaporative/Swamp",
+  "Evaporative Cooling",
+  "Heat Pump",
+  "Multi Units",
+];
+
 const HOA_OPTIONS = [
   { value: "", label: "Any" },
   { value: "0", label: "No HOA" },
@@ -157,6 +193,9 @@ const DEFAULT_FORM: FormValues = {
   minYearBuilt: "",
   maxYearBuilt: "",
   maxAssocFee: "",
+  fencing: [],
+  parkingFeatures: [],
+  cooling: [],
   receiveUpdates: true,
 };
 
@@ -210,6 +249,21 @@ function searchToForm(s: IDXSearch): FormValues {
     : src.a_propSubType
     ? [src.a_propSubType]
     : [];
+  const fencing = Array.isArray(src.a_fencing)
+    ? src.a_fencing
+    : src.a_fencing
+    ? [src.a_fencing]
+    : [];
+  const parkingFeatures = Array.isArray(src.a_parkingFeatures)
+    ? src.a_parkingFeatures
+    : src.a_parkingFeatures
+    ? [src.a_parkingFeatures]
+    : [];
+  const cooling = Array.isArray(src.a_cooling)
+    ? src.a_cooling
+    : src.a_cooling
+    ? [src.a_cooling]
+    : [];
 
   return {
     searchName: s.searchName,
@@ -227,6 +281,9 @@ function searchToForm(s: IDXSearch): FormValues {
     minYearBuilt: src.amin_yearBuilt ?? "",
     maxYearBuilt: src.amax_yearBuilt ?? "",
     maxAssocFee: src.amax_associationFee ?? "",
+    fencing,
+    parkingFeatures,
+    cooling,
     receiveUpdates: s.receiveUpdates !== "n",
   };
 }
@@ -263,6 +320,11 @@ function buildPayload(form: FormValues): string {
     body.append("search[amax_yearBuilt]", form.maxYearBuilt);
   if (form.maxAssocFee !== "")
     body.append("search[amax_associationFee]", form.maxAssocFee);
+  form.fencing.forEach((v) => body.append("search[a_fencing][]", v));
+  form.parkingFeatures.forEach((v) =>
+    body.append("search[a_parkingFeatures][]", v)
+  );
+  form.cooling.forEach((v) => body.append("search[a_cooling][]", v));
 
   return body.toString();
 }
@@ -810,6 +872,36 @@ const S = {
     background: "#F3F4F6",
     margin: "14px 0",
   } as React.CSSProperties,
+
+  collapseHeader: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    cursor: "pointer",
+    userSelect: "none" as const,
+    marginBottom: 4,
+  } as React.CSSProperties,
+
+  collapseToggleBtn: {
+    background: "none",
+    border: "none",
+    cursor: "pointer",
+    color: "#9CA3AF",
+    fontSize: 10,
+    padding: 0,
+    lineHeight: 1,
+  } as React.CSSProperties,
+
+  collapseSummary: {
+    fontSize: 12,
+    color: "#6B7280",
+    margin: "0 0 2px",
+    fontStyle: "italic" as const,
+  } as React.CSSProperties,
+
+  collapseContent: {
+    paddingTop: 4,
+  } as React.CSSProperties,
 };
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -1171,6 +1263,63 @@ function MainView({
   );
 }
 
+// ─── Collapsible Multi-Select ─────────────────────────────────────────────────
+
+function CollapsibleMultiSelect({
+  label,
+  options,
+  selected,
+  onChange,
+}: {
+  label: string;
+  options: string[];
+  selected: string[];
+  onChange: (values: string[]) => void;
+}) {
+  const [open, setOpen] = useState(false);
+
+  function toggle(val: string) {
+    onChange(
+      selected.includes(val)
+        ? selected.filter((v) => v !== val)
+        : [...selected, val]
+    );
+  }
+
+  const summary =
+    selected.length > 0 ? selected.join(", ") : "None selected";
+
+  return (
+    <div style={S.field}>
+      <div style={S.collapseHeader} onClick={() => setOpen((o) => !o)}>
+        <span style={S.label}>{label}</span>
+        <button
+          type="button"
+          style={S.collapseToggleBtn}
+          aria-label={open ? "Collapse" : "Expand"}
+        >
+          {open ? "▲" : "▼"}
+        </button>
+      </div>
+      {!open && <p style={S.collapseSummary}>{summary}</p>}
+      {open && (
+        <div style={S.collapseContent}>
+          {options.map((opt) => (
+            <label key={opt} style={S.checkRow}>
+              <input
+                type="checkbox"
+                checked={selected.includes(opt)}
+                onChange={() => toggle(opt)}
+              />
+              <span style={S.checkLabel}>{opt}</span>
+            </label>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Form View ────────────────────────────────────────────────────────────────
 
 function FormView({
@@ -1441,6 +1590,32 @@ function FormView({
             />
           </div>
         </div>
+
+        {/* Fencing */}
+        <CollapsibleMultiSelect
+          label="Fencing"
+          options={FENCING_OPTIONS}
+          selected={form.fencing}
+          onChange={(values) => setForm((f) => ({ ...f, fencing: values }))}
+        />
+
+        {/* Parking Features */}
+        <CollapsibleMultiSelect
+          label="Parking Features"
+          options={PARKING_OPTIONS}
+          selected={form.parkingFeatures}
+          onChange={(values) =>
+            setForm((f) => ({ ...f, parkingFeatures: values }))
+          }
+        />
+
+        {/* Cooling */}
+        <CollapsibleMultiSelect
+          label="Cooling"
+          options={COOLING_OPTIONS}
+          selected={form.cooling}
+          onChange={(values) => setForm((f) => ({ ...f, cooling: values }))}
+        />
 
         {/* HOA */}
         <div style={S.field}>
