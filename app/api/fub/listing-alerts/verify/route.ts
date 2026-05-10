@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
+import { getSupabase } from "@/lib/supabase";
 
-interface IDXLead {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-}
+// ─── IDX helpers ──────────────────────────────────────────────────────────────
 
 function getIdxHeaders() {
   const apiKey = process.env.IDX_BROKER_API_KEY;
@@ -22,27 +18,116 @@ function getIdxHeaders() {
   };
 }
 
-function idxFetch(url: string, options: RequestInit = {}): Promise<Response> {
-  return fetch(url, options);
+interface IDXLead {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
 }
 
-async function getAllIDXLeads(headers: Record<string, string>): Promise<IDXLead[]> {
-  const res = await idxFetch("https://api.idxbroker.com/leads/lead", {
-    headers,
-  });
-
-  if (!res.ok) {
-    const body = await res.text().catch(() => "(unreadable body)");
-    console.error(
-      `[verify] IDX leads fetch failed: status=${res.status}`,
-      body
-    );
-    throw new Error(`IDX leads fetch failed: ${res.status}`);
+// Fetch ALL leads from IDX with a hard 5-second timeout.
+// Only used as a fallback when the Supabase cache misses.
+async function fetchAllIDXLeads(
+  headers: Record<string, string>
+): Promise<IDXLead[] | null> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 5_000);
+  try {
+    const res = await fetch("https://api.idxbroker.com/leads/lead", {
+      headers,
+      signal: controller.signal,
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => "(unreadable)");
+      console.error(`[verify] IDX leads fetch failed: ${res.status}`, body);
+      return null;
+    }
+    const data = await res.json();
+    return Array.isArray(data.data) ? data.data : [];
+  } catch (err) {
+    if ((err as Error)?.name === "AbortError") {
+      console.warn("[verify] IDX leads fetch timed out after 5s");
+    } else {
+      console.error("[verify] IDX leads fetch error:", err);
+    }
+    return null;
+  } finally {
+    clearTimeout(timer);
   }
-
-  const data = await res.json();
-  return Array.isArray(data.data) ? data.data : [];
 }
+
+// Create a single new lead in IDX Broker. Creating is much faster than
+// fetching all leads and is not subject to the 5-second timeout.
+async function createIDXLead(
+  headers: Record<string, string>,
+  firstName: string,
+  lastName: string,
+  email: string
+): Promise<string | null> {
+  const body = new URLSearchParams();
+  body.append("firstName", firstName);
+  body.append("lastName", lastName || " ");
+  body.append("email", email);
+
+  const t = Date.now();
+  console.log("[verify] starting IDX create lead", t);
+  try {
+    const res = await fetch("https://api.idxbroker.com/leads/lead", {
+      method: "POST",
+      headers,
+      body: body.toString(),
+    });
+    console.log("[verify] IDX create lead complete", `${Date.now() - t}ms`, res.status);
+    if (!res.ok) {
+      const text = await res.text().catch(() => "(unreadable)");
+      console.error(`[verify] IDX create lead failed: ${res.status}`, text);
+      return null;
+    }
+    const created = await res.json();
+    return String(created.newID || created.id || "") || null;
+  } catch (err) {
+    console.error("[verify] IDX create lead error:", err);
+    return null;
+  }
+}
+
+// ─── Supabase cache helpers ───────────────────────────────────────────────────
+
+async function getCachedLeadId(email: string): Promise<string | null> {
+  try {
+    const { data, error } = await getSupabase()
+      .from("idx_lead_map")
+      .select("idx_lead_id")
+      .eq("email", email.toLowerCase())
+      .maybeSingle();
+    if (error) {
+      console.error("[verify] Supabase lookup error:", error.message);
+      return null;
+    }
+    return data?.idx_lead_id ?? null;
+  } catch (err) {
+    console.error("[verify] Supabase lookup threw:", err);
+    return null;
+  }
+}
+
+async function cacheLeadId(
+  email: string,
+  idx_lead_id: string,
+  first_name: string,
+  last_name: string
+): Promise<void> {
+  try {
+    const { error } = await getSupabase()
+      .from("idx_lead_map")
+      .upsert({ email: email.toLowerCase(), idx_lead_id, first_name, last_name });
+    if (error) console.error("[verify] Supabase upsert error:", error.message);
+  } catch (err) {
+    console.error("[verify] Supabase upsert threw:", err);
+  }
+}
+
+// ─── Route handler ────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
   let body: { context?: string; signature?: string };
@@ -53,7 +138,6 @@ export async function POST(req: NextRequest) {
   }
 
   const { context, signature } = body;
-
   if (!context) {
     return NextResponse.json({ error: "Missing context" }, { status: 400 });
   }
@@ -70,7 +154,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Decode base64 context (handle URL-safe base64 from FUB)
+  // Decode FUB base64 context (handle URL-safe base64)
   let decoded: Record<string, unknown>;
   try {
     const normalized = context.replace(/-/g, "+").replace(/_/g, "/");
@@ -80,16 +164,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid context encoding" }, { status: 400 });
   }
 
-  // FUB context shape: { context: "person", person: { firstName, lastName, emails: [{value}] } }
   const person = (decoded.person as Record<string, unknown>) ?? decoded;
-
   const email =
     ((person.emails as Array<{ value: string }>)?.[0]?.value) ||
     (person.email as string) ||
     (decoded.email as string);
 
   console.log("[verify] extracted email:", email);
-
   if (!email) {
     return NextResponse.json({ error: "No email in context" }, { status: 422 });
   }
@@ -98,7 +179,16 @@ export async function POST(req: NextRequest) {
   const lastName = (person.lastName as string) || "";
   const contact = { firstName, lastName, email };
 
-  // Build headers per-request so env var is read at call time
+  // ── 1. Check Supabase cache first (fast, <100ms) ──────────────────────────
+  console.log("[verify] checking Supabase cache");
+  const cached = await getCachedLeadId(email);
+  if (cached) {
+    console.log("[verify] cache hit, leadId:", cached);
+    return NextResponse.json({ leadId: cached, contact });
+  }
+  console.log("[verify] cache miss, falling back to IDX Broker");
+
+  // ── 2. Build IDX headers ──────────────────────────────────────────────────
   let idxHeaders: Record<string, string>;
   try {
     idxHeaders = getIdxHeaders();
@@ -110,64 +200,39 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Look up existing IDX lead by email
-  let leads: IDXLead[];
+  // ── 3. Try to find the lead in IDX (5s timeout) ───────────────────────────
   const t0 = Date.now();
   console.log("[verify] starting IDX leads fetch", t0);
-  try {
-    leads = await getAllIDXLeads(idxHeaders);
-  } catch (err) {
-    console.error("[verify] getAllIDXLeads error:", err);
-    return NextResponse.json({ error: "Failed to fetch IDX leads" }, { status: 502 });
-  }
-  console.log("[verify] IDX leads fetch complete", Date.now(), `(${Date.now() - t0}ms, ${leads.length} leads)`);
-
-  const existing = leads.find(
-    (l) => l.email?.toLowerCase() === email.toLowerCase()
+  const leads = await fetchAllIDXLeads(idxHeaders);
+  console.log(
+    "[verify] IDX leads fetch done",
+    `${Date.now() - t0}ms`,
+    leads === null ? "timed out / failed" : `${leads.length} leads`
   );
-  if (existing) {
-    console.log("[verify] found existing lead:", existing.id);
-    return NextResponse.json({ leadId: existing.id, contact });
-  }
 
-  // Create new IDX lead
-  console.log("[verify] creating new IDX lead for:", email);
-  const createBody = new URLSearchParams();
-  createBody.append("firstName", firstName);
-  createBody.append("lastName", lastName || " ");
-  createBody.append("email", email);
-
-  const t1 = Date.now();
-  console.log("[verify] starting IDX create lead", t1);
-  let createRes: Response;
-  try {
-    createRes = await idxFetch("https://api.idxbroker.com/leads/lead", {
-      method: "POST",
-      headers: idxHeaders,
-      body: createBody.toString(),
-    });
-  } catch (err) {
-    console.error("[verify] IDX create lead fetch error:", err);
-    return NextResponse.json({ error: "Failed to create IDX lead" }, { status: 502 });
-  }
-  console.log("[verify] IDX create lead complete", Date.now(), `(${Date.now() - t1}ms)`);
-
-  if (!createRes.ok) {
-    const text = await createRes.text().catch(() => "(unreadable)");
-    console.error(
-      `[verify] IDX create lead failed: status=${createRes.status}`,
-      text
+  if (leads !== null) {
+    const existing = leads.find(
+      (l) => l.email?.toLowerCase() === email.toLowerCase()
     );
-    return NextResponse.json({ error: "Failed to create IDX lead" }, { status: 502 });
+    if (existing) {
+      console.log("[verify] found in IDX, caching leadId:", existing.id);
+      await cacheLeadId(email, existing.id, firstName, lastName);
+      return NextResponse.json({ leadId: existing.id, contact });
+    }
   }
 
-  const created = await createRes.json();
-  const leadId = String(created.newID || created.id || "");
-  console.log("[verify] created lead:", leadId);
+  // ── 4. Lead not found — create it in IDX ─────────────────────────────────
+  console.log("[verify] lead not in IDX, creating new lead");
+  const newLeadId = await createIDXLead(idxHeaders, firstName, lastName, email);
 
-  if (!leadId) {
-    return NextResponse.json({ error: "No lead ID returned from IDX" }, { status: 502 });
+  if (!newLeadId) {
+    return NextResponse.json(
+      { error: "IDX Broker is slow right now — please try again in a moment." },
+      { status: 503 }
+    );
   }
 
-  return NextResponse.json({ leadId, contact });
+  console.log("[verify] created new lead, caching leadId:", newLeadId);
+  await cacheLeadId(email, newLeadId, firstName, lastName);
+  return NextResponse.json({ leadId: newLeadId, contact });
 }
