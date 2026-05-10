@@ -114,7 +114,7 @@ export default function ChatWidget() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef       = useRef<HTMLInputElement>(null);
 
-  if (pathname.startsWith("/admin")) return null;
+  if (pathname.startsWith("/admin") || pathname.startsWith("/fub")) return null;
 
   // Auto-scroll to bottom on new messages or typing indicator change
   useEffect(() => {

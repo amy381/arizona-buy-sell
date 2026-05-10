@@ -7,6 +7,6 @@ const NO_FOOTER = new Set(["/search-properties"]);
 
 export default function FooterConditional() {
   const pathname = usePathname();
-  if (NO_FOOTER.has(pathname)) return null;
+  if (NO_FOOTER.has(pathname) || pathname.startsWith("/fub")) return null;
   return <Footer />;
 }
