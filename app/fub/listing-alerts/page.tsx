@@ -31,7 +31,7 @@ export default function FubListingAlertsPage() {
     <>
       {/* FUB Embedded Apps SDK — handles height communication with parent frame */}
       <Script
-        src="https://eia.followupboss.com/embeddedApps-v1.0.0.js"
+        src="https://eia.followupboss.com/embeddedApps-v1.0.1.js"
         strategy="afterInteractive"
       />
       <Suspense fallback={<Loading />}>
