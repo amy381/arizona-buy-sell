@@ -112,12 +112,15 @@ export async function POST(req: NextRequest) {
 
   // Look up existing IDX lead by email
   let leads: IDXLead[];
+  const t0 = Date.now();
+  console.log("[verify] starting IDX leads fetch", t0);
   try {
     leads = await getAllIDXLeads(idxHeaders);
   } catch (err) {
     console.error("[verify] getAllIDXLeads error:", err);
     return NextResponse.json({ error: "Failed to fetch IDX leads" }, { status: 502 });
   }
+  console.log("[verify] IDX leads fetch complete", Date.now(), `(${Date.now() - t0}ms, ${leads.length} leads)`);
 
   const existing = leads.find(
     (l) => l.email?.toLowerCase() === email.toLowerCase()
@@ -134,6 +137,8 @@ export async function POST(req: NextRequest) {
   createBody.append("lastName", lastName || " ");
   createBody.append("email", email);
 
+  const t1 = Date.now();
+  console.log("[verify] starting IDX create lead", t1);
   let createRes: Response;
   try {
     createRes = await idxFetch("https://api.idxbroker.com/leads/lead", {
@@ -145,6 +150,7 @@ export async function POST(req: NextRequest) {
     console.error("[verify] IDX create lead fetch error:", err);
     return NextResponse.json({ error: "Failed to create IDX lead" }, { status: 502 });
   }
+  console.log("[verify] IDX create lead complete", Date.now(), `(${Date.now() - t1}ms)`);
 
   if (!createRes.ok) {
     const text = await createRes.text().catch(() => "(unreadable)");
