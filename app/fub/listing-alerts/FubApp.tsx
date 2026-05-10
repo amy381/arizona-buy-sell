@@ -146,6 +146,10 @@ const FENCING_OPTIONS = [
   "None",
   "Privacy",
   "Stucco Wall",
+  "Vinyl",
+  "Wire",
+  "Wood",
+  "Wrought Iron",
 ];
 
 const PARKING_OPTIONS = [
@@ -156,6 +160,13 @@ const PARKING_OPTIONS = [
   "Detached",
   "Drive Through",
   "Electric Vehicle Charging Station(s)",
+  "Finished",
+  "Garage",
+  "Garage Door Opener",
+  "None",
+  "RV/Access Parking",
+  "RV Garage",
+  "Storage",
 ];
 
 const COOLING_OPTIONS = [
@@ -166,6 +177,8 @@ const COOLING_OPTIONS = [
   "Evaporative Cooling",
   "Heat Pump",
   "Multi Units",
+  "None",
+  "Wall/Window Unit(s)",
 ];
 
 const HOA_OPTIONS = [
