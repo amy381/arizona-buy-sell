@@ -1743,6 +1743,12 @@ function ErrorView({ message }: { message: string }) {
 
 export default function FubApp() {
   const searchParams = useSearchParams();
+  // Read primitive values outside the effect so the dependency is the stable
+  // string, not the URLSearchParams object reference (which can change on every
+  // render in Next.js App Router, causing the effect to re-run and abort itself).
+  const context = searchParams.get("context");
+  const signature = searchParams.get("signature");
+
   const [phase, setPhase] = useState<
     "loading" | "idle" | "creating" | "editing" | "error"
   >("loading");
@@ -1796,38 +1802,61 @@ export default function FubApp() {
   }
 
   useEffect(() => {
-    const context = searchParams.get("context");
-    const signature = searchParams.get("signature");
+    console.log("[FubApp] init effect, context:", context ? "present" : "absent");
 
     if (!context) {
+      console.log("[FubApp] no context → idle (dev/preview mode)");
       setPhase("idle");
       return;
     }
 
+    const controller = new AbortController();
+
     (async () => {
       try {
+        console.log("[FubApp] calling verify");
         const res = await fetch("/api/fub/listing-alerts/verify", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ context, signature }),
+          signal: controller.signal,
         });
+
+        console.log("[FubApp] verify status:", res.status);
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
+          console.warn("[FubApp] verify failed:", err);
           setError((err as { error?: string }).error ?? "Verification failed");
           setPhase("error");
           return;
         }
+
         const data = await res.json() as { leadId: string; contact: Contact };
+        console.log("[FubApp] verify ok, leadId:", data.leadId);
         setContact(data.contact);
         setLeadId(data.leadId);
+
+        console.log("[FubApp] loading searches");
         await loadSearches(data.leadId);
+
+        console.log("[FubApp] done → idle");
         setPhase("idle");
-      } catch {
+      } catch (err) {
+        if ((err as Error)?.name === "AbortError") {
+          console.log("[FubApp] fetch aborted (effect cleanup)");
+          return;
+        }
+        console.error("[FubApp] init error:", err);
         setError("Network error — please reload.");
         setPhase("error");
       }
     })();
-  }, [searchParams, loadSearches]);
+
+    return () => {
+      console.log("[FubApp] effect cleanup, aborting");
+      controller.abort();
+    };
+  }, [context, signature, loadSearches]);
 
   function startCreate() {
     setForm(DEFAULT_FORM);
