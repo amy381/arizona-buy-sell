@@ -21,11 +21,14 @@ interface IDXSearchCriteria {
   bd?: string;
   tb?: string;
   sqft?: string;
+  amax_sqFt?: string;
   acres?: string;
+  amax_acres?: string;
   srt?: string;
   amin_yearBuilt?: string;
   amax_yearBuilt?: string;
   a_propSubType?: string | string[];
+  amax_associationFee?: string;
 }
 
 interface IDXSearch {
@@ -48,9 +51,12 @@ interface FormValues {
   bd: string;
   tb: string;
   sqft: string;
+  maxSqft: string;
   acres: string;
+  maxAcres: string;
   minYearBuilt: string;
   maxYearBuilt: string;
+  maxAssocFee: string;
   receiveUpdates: boolean;
 }
 
@@ -94,6 +100,15 @@ const BA_OPTIONS = [
   { value: "4", label: "4+" },
 ];
 
+const HOA_OPTIONS = [
+  { value: "", label: "Any" },
+  { value: "0", label: "No HOA" },
+  { value: "50", label: "Max $50/mo" },
+  { value: "100", label: "Max $100/mo" },
+  { value: "200", label: "Max $200/mo" },
+  { value: "300", label: "Max $300/mo" },
+];
+
 const DEFAULT_FORM: FormValues = {
   searchName: "",
   cities: [],
@@ -104,9 +119,12 @@ const DEFAULT_FORM: FormValues = {
   bd: "0",
   tb: "0",
   sqft: "",
+  maxSqft: "",
   acres: "",
+  maxAcres: "",
   minYearBuilt: "",
   maxYearBuilt: "",
+  maxAssocFee: "",
   receiveUpdates: true,
 };
 
@@ -171,9 +189,12 @@ function searchToForm(s: IDXSearch): FormValues {
     bd: src.bd ?? "0",
     tb: src.tb ?? "0",
     sqft: src.sqft ?? "",
+    maxSqft: src.amax_sqFt ?? "",
     acres: src.acres ?? "",
+    maxAcres: src.amax_acres ?? "",
     minYearBuilt: src.amin_yearBuilt ?? "",
     maxYearBuilt: src.amax_yearBuilt ?? "",
+    maxAssocFee: src.amax_associationFee ?? "",
     receiveUpdates: s.receiveUpdates !== "n",
   };
 }
@@ -201,11 +222,15 @@ function buildPayload(form: FormValues): string {
   if (form.bd !== "0") body.append("search[bd]", form.bd);
   if (form.tb !== "0") body.append("search[tb]", form.tb);
   if (form.sqft) body.append("search[sqft]", form.sqft);
+  if (form.maxSqft) body.append("search[amax_sqFt]", form.maxSqft);
   if (form.acres) body.append("search[acres]", form.acres);
+  if (form.maxAcres) body.append("search[amax_acres]", form.maxAcres);
   if (form.minYearBuilt)
     body.append("search[amin_yearBuilt]", form.minYearBuilt);
   if (form.maxYearBuilt)
     body.append("search[amax_yearBuilt]", form.maxYearBuilt);
+  if (form.maxAssocFee !== "")
+    body.append("search[amax_associationFee]", form.maxAssocFee);
 
   return body.toString();
 }
@@ -949,10 +974,10 @@ function FormView({
           </div>
         </div>
 
-        {/* SqFt / Acres */}
-        <div style={{ ...S.field, ...S.halfRow }}>
-          <div>
-            <label style={S.label}>Min SqFt</label>
+        {/* Approx SqFt */}
+        <div style={S.field}>
+          <label style={S.label}>Approx SqFt</label>
+          <div style={S.halfRow}>
             <input
               style={S.input}
               type="number"
@@ -960,12 +985,26 @@ function FormView({
               onChange={(e) =>
                 setForm((f) => ({ ...f, sqft: e.target.value }))
               }
-              placeholder="Any"
+              placeholder="Min"
+              min={0}
+            />
+            <input
+              style={S.input}
+              type="number"
+              value={form.maxSqft}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, maxSqft: e.target.value }))
+              }
+              placeholder="Max"
               min={0}
             />
           </div>
-          <div>
-            <label style={S.label}>Min Acres</label>
+        </div>
+
+        {/* Approx Acres */}
+        <div style={S.field}>
+          <label style={S.label}>Approx Acres</label>
+          <div style={S.halfRow}>
             <input
               style={S.input}
               type="number"
@@ -973,7 +1012,18 @@ function FormView({
               onChange={(e) =>
                 setForm((f) => ({ ...f, acres: e.target.value }))
               }
-              placeholder="Any"
+              placeholder="Min"
+              min={0}
+              step="0.01"
+            />
+            <input
+              style={S.input}
+              type="number"
+              value={form.maxAcres}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, maxAcres: e.target.value }))
+              }
+              placeholder="Max"
               min={0}
               step="0.01"
             />
@@ -981,9 +1031,9 @@ function FormView({
         </div>
 
         {/* Year Built */}
-        <div style={{ ...S.field, ...S.halfRow }}>
-          <div>
-            <label style={S.label}>Year Built Min</label>
+        <div style={S.field}>
+          <label style={S.label}>Year Built</label>
+          <div style={S.halfRow}>
             <input
               style={S.input}
               type="number"
@@ -991,13 +1041,10 @@ function FormView({
               onChange={(e) =>
                 setForm((f) => ({ ...f, minYearBuilt: e.target.value }))
               }
-              placeholder="Any"
+              placeholder="Min"
               min={1800}
               max={new Date().getFullYear() + 2}
             />
-          </div>
-          <div>
-            <label style={S.label}>Year Built Max</label>
             <input
               style={S.input}
               type="number"
@@ -1005,11 +1052,29 @@ function FormView({
               onChange={(e) =>
                 setForm((f) => ({ ...f, maxYearBuilt: e.target.value }))
               }
-              placeholder="Any"
+              placeholder="Max"
               min={1800}
               max={new Date().getFullYear() + 2}
             />
           </div>
+        </div>
+
+        {/* HOA */}
+        <div style={S.field}>
+          <label style={S.label}>HOA</label>
+          <select
+            style={S.select}
+            value={form.maxAssocFee}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, maxAssocFee: e.target.value }))
+            }
+          >
+            {HOA_OPTIONS.map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div style={S.divider} />
