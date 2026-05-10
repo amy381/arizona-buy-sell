@@ -49,27 +49,32 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Decode base64 context
+  // Decode base64 context (handle URL-safe base64 from FUB)
   let decoded: Record<string, unknown>;
   try {
-    decoded = JSON.parse(Buffer.from(context, "base64").toString("utf-8"));
+    const normalized = context.replace(/-/g, "+").replace(/_/g, "/");
+    decoded = JSON.parse(Buffer.from(normalized, "base64").toString("utf-8"));
+    console.log("[FUB verify] decoded context:", JSON.stringify(decoded));
   } catch {
     return NextResponse.json({ error: "Invalid context encoding" }, { status: 400 });
   }
 
+  // FUB context shape: { context: "person", person: { firstName, lastName, emails: [{value}] } }
+  const person = (decoded.person as Record<string, unknown>) ?? decoded;
+
   const email =
-    (decoded.email as string) ||
-    (decoded.emails as Array<{ value: string }>)?.[0]?.value;
+    ((person.emails as Array<{ value: string }>)?.[0]?.value) ||
+    (person.email as string) ||
+    (decoded.email as string);
+
+  console.log("[FUB verify] extracted email:", email);
 
   if (!email) {
     return NextResponse.json({ error: "No email in context" }, { status: 422 });
   }
 
-  const nameParts = ((decoded.name as string) || "").split(" ");
-  const firstName =
-    (decoded.firstName as string) || nameParts[0] || "";
-  const lastName =
-    (decoded.lastName as string) || nameParts.slice(1).join(" ") || "";
+  const firstName = (person.firstName as string) || "";
+  const lastName = (person.lastName as string) || "";
 
   const contact = { firstName, lastName, email };
 
