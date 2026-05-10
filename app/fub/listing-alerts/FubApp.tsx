@@ -5,6 +5,8 @@ import { useSearchParams } from "next/navigation";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
+type AppTab = "alerts" | "activity";
+
 interface Contact {
   firstName: string;
   lastName: string;
@@ -58,6 +60,36 @@ interface FormValues {
   maxYearBuilt: string;
   maxAssocFee: string;
   receiveUpdates: boolean;
+}
+
+interface ActivitySummary {
+  lastActivityDate: string | null;
+  lastActivity: string | null;
+  totalViewedIDXPages: number;
+  activityScores: string;
+  savedProperties: number;
+  savedSearches: number;
+}
+
+interface TrafficEntry {
+  date?: string;
+  page?: string;
+  ip?: string;
+  [key: string]: unknown;
+}
+
+interface PropertyEntry {
+  mlsNumber?: string;
+  address?: string;
+  listingID?: string;
+  idxPropType?: string;
+  [key: string]: unknown;
+}
+
+interface ActivityData {
+  summary: ActivitySummary;
+  traffic: TrafficEntry[];
+  properties: PropertyEntry[];
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -253,6 +285,60 @@ function buildResultsURL(form: FormValues): string {
   return `https://search.arizonabuyandsell.com/idx/results?${p.toString()}`;
 }
 
+function formatActivityType(type: string | null): string {
+  if (!type) return "Unknown";
+  const map: Record<string, string> = {
+    signUp: "Sign Up",
+    login: "Login",
+    propertyView: "Property View",
+    savedSearch: "Saved Search",
+    savedProperty: "Saved Property",
+    emailUpdate: "Email Update",
+  };
+  return map[type] ?? type.replace(/([A-Z])/g, " $1").trim();
+}
+
+function formatDate(iso: string | null): string {
+  if (!iso) return "—";
+  try {
+    const d = new Date(iso);
+    return d.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  } catch {
+    return iso;
+  }
+}
+
+function formatDateTime(iso: string | null | undefined): string {
+  if (!iso) return "—";
+  try {
+    const d = new Date(iso);
+    return d.toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  } catch {
+    return iso;
+  }
+}
+
+function truncateUrl(url: string | undefined, max = 48): string {
+  if (!url) return "—";
+  try {
+    const u = new URL(url);
+    const path = u.pathname + u.search;
+    return path.length > max ? path.slice(0, max) + "…" : path;
+  } catch {
+    return url.length > max ? url.slice(0, max) + "…" : url;
+  }
+}
+
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const S = {
@@ -303,6 +389,28 @@ const S = {
       borderRadius: "50%",
       background: connected ? "#10B981" : "#F59E0B",
       flexShrink: 0,
+    } as React.CSSProperties),
+
+  // Tab bar
+  tabBar: {
+    display: "flex",
+    borderBottom: "1px solid #E5E7EB",
+    background: "#fff",
+    padding: "0 16px",
+  } as React.CSSProperties,
+
+  tab: (active: boolean) =>
+    ({
+      padding: "10px 0",
+      marginRight: 20,
+      fontSize: 13,
+      fontWeight: active ? 600 : 400,
+      color: active ? "#111827" : "#6B7280",
+      borderBottom: active ? "2px solid #2563EB" : "2px solid transparent",
+      background: "none",
+      border: "none",
+      cursor: "pointer",
+      lineHeight: 1,
     } as React.CSSProperties),
 
   body: {
@@ -429,6 +537,104 @@ const S = {
     padding: "28px 0 20px",
     color: "#9CA3AF",
     fontSize: 13,
+  } as React.CSSProperties,
+
+  // Activity styles
+  statGrid: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: 8,
+    marginBottom: 16,
+  } as React.CSSProperties,
+
+  statCard: {
+    background: "#F9FAFB",
+    border: "1px solid #E5E7EB",
+    borderRadius: 8,
+    padding: "10px 12px",
+  } as React.CSSProperties,
+
+  statValue: {
+    fontSize: 20,
+    fontWeight: 700,
+    color: "#111827",
+    lineHeight: 1,
+    margin: "0 0 3px",
+  } as React.CSSProperties,
+
+  statLabel: {
+    fontSize: 11,
+    color: "#6B7280",
+    margin: 0,
+  } as React.CSSProperties,
+
+  lastActive: {
+    background: "#F9FAFB",
+    border: "1px solid #E5E7EB",
+    borderRadius: 8,
+    padding: "10px 12px",
+    marginBottom: 16,
+  } as React.CSSProperties,
+
+  lastActiveLabel: {
+    fontSize: 11,
+    fontWeight: 600,
+    textTransform: "uppercase" as const,
+    letterSpacing: ".07em",
+    color: "#6B7280",
+    margin: "0 0 3px",
+  } as React.CSSProperties,
+
+  lastActiveValue: {
+    fontSize: 13,
+    fontWeight: 500,
+    color: "#111827",
+    margin: 0,
+  } as React.CSSProperties,
+
+  trafficItem: {
+    padding: "8px 0",
+    borderBottom: "1px solid #F3F4F6",
+  } as React.CSSProperties,
+
+  trafficDate: {
+    fontSize: 11,
+    color: "#9CA3AF",
+    margin: "0 0 2px",
+  } as React.CSSProperties,
+
+  trafficUrl: {
+    fontSize: 12,
+    color: "#2563EB",
+    textDecoration: "none",
+    margin: 0,
+    wordBreak: "break-all" as const,
+    display: "block",
+  } as React.CSSProperties,
+
+  propertyItem: {
+    padding: "8px 0",
+    borderBottom: "1px solid #F3F4F6",
+  } as React.CSSProperties,
+
+  propertyAddress: {
+    fontSize: 12,
+    fontWeight: 500,
+    color: "#111827",
+    margin: "0 0 2px",
+  } as React.CSSProperties,
+
+  propertyMeta: {
+    fontSize: 11,
+    color: "#6B7280",
+    margin: 0,
+  } as React.CSSProperties,
+
+  activityEmptyState: {
+    padding: "16px 0 8px",
+    color: "#9CA3AF",
+    fontSize: 12,
+    lineHeight: 1.5,
   } as React.CSSProperties,
 
   // Form styles
@@ -714,6 +920,149 @@ function SearchCard({
   );
 }
 
+// ─── Activity Tab ─────────────────────────────────────────────────────────────
+
+function ActivityView({
+  data,
+  loading,
+  error,
+}: {
+  data: ActivityData | null;
+  loading: boolean;
+  error: string | null;
+}) {
+  if (loading) {
+    return (
+      <div
+        style={{
+          padding: "32px 16px",
+          textAlign: "center",
+          color: "#9CA3AF",
+          fontSize: 13,
+        }}
+      >
+        Loading activity…
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ padding: 16 }}>
+        <div style={S.errorBox}>{error}</div>
+      </div>
+    );
+  }
+
+  if (!data) return null;
+
+  const { summary, traffic, properties } = data;
+
+  const lastActiveText =
+    summary.lastActivityDate
+      ? `${formatDate(summary.lastActivityDate)} — ${formatActivityType(summary.lastActivity)}`
+      : summary.lastActivity
+      ? formatActivityType(summary.lastActivity)
+      : "No activity yet";
+
+  // Sort traffic newest first
+  const sortedTraffic = [...traffic].sort((a, b) => {
+    const da = a.date ? new Date(a.date).getTime() : 0;
+    const db = b.date ? new Date(b.date).getTime() : 0;
+    return db - da;
+  });
+
+  return (
+    <div style={S.body}>
+      {/* Last Active */}
+      <div style={S.lastActive}>
+        <p style={S.lastActiveLabel}>Last Active</p>
+        <p style={S.lastActiveValue}>{lastActiveText}</p>
+      </div>
+
+      {/* Stats grid */}
+      <div style={S.statGrid}>
+        <div style={S.statCard}>
+          <p style={S.statValue}>{summary.totalViewedIDXPages}</p>
+          <p style={S.statLabel}>Pages Viewed</p>
+        </div>
+        <div style={S.statCard}>
+          <p style={S.statValue}>{summary.savedProperties}</p>
+          <p style={S.statLabel}>Saved Props</p>
+        </div>
+        <div style={S.statCard}>
+          <p style={S.statValue}>{summary.savedSearches}</p>
+          <p style={S.statLabel}>Saved Searches</p>
+        </div>
+        <div style={S.statCard}>
+          <p style={S.statValue}>{summary.activityScores}</p>
+          <p style={S.statLabel}>Activity Score</p>
+        </div>
+      </div>
+
+      {/* Recent Activity */}
+      <p style={{ ...S.sectionLabel, marginBottom: 4 }}>Recent Activity</p>
+      {sortedTraffic.length === 0 ? (
+        <p style={S.activityEmptyState}>
+          No browsing activity recorded yet. Activity will appear here once
+          the lead visits your IDX search pages.
+        </p>
+      ) : (
+        <div style={{ marginBottom: 16 }}>
+          {sortedTraffic.slice(0, 20).map((entry, i) => (
+            <div key={i} style={S.trafficItem}>
+              <p style={S.trafficDate}>{formatDateTime(entry.date)}</p>
+              {entry.page ? (
+                <a
+                  href={entry.page}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={S.trafficUrl}
+                  title={entry.page}
+                >
+                  {truncateUrl(entry.page)}
+                </a>
+              ) : (
+                <p style={{ ...S.trafficUrl, color: "#6B7280" }}>
+                  Page visit
+                </p>
+              )}
+            </div>
+          ))}
+          {sortedTraffic.length > 20 && (
+            <p style={{ fontSize: 11, color: "#9CA3AF", marginTop: 6 }}>
+              +{sortedTraffic.length - 20} more visits
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Saved Properties */}
+      <p style={{ ...S.sectionLabel, marginTop: 8, marginBottom: 4 }}>
+        Saved Properties
+      </p>
+      {properties.length === 0 ? (
+        <p style={S.activityEmptyState}>No saved properties yet.</p>
+      ) : (
+        <div>
+          {properties.map((prop, i) => (
+            <div key={i} style={S.propertyItem}>
+              <p style={S.propertyAddress}>
+                {(prop.address as string) ||
+                  (prop.mlsNumber as string) ||
+                  `Listing ${i + 1}`}
+              </p>
+              {prop.mlsNumber && (
+                <p style={S.propertyMeta}>MLS# {prop.mlsNumber}</p>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Main View ────────────────────────────────────────────────────────────────
 
 function MainView({
@@ -722,22 +1071,32 @@ function MainView({
   searches,
   confirmDeleteId,
   deletingId,
+  activeTab,
+  onTabChange,
   onCreate,
   onEdit,
   onDelete,
   onConfirmDelete,
   onToggleUpdates,
+  activityData,
+  activityLoading,
+  activityError,
 }: {
   contact: Contact | null;
   leadId: string | null;
   searches: IDXSearch[];
   confirmDeleteId: string | null;
   deletingId: string | null;
+  activeTab: AppTab;
+  onTabChange: (tab: AppTab) => void;
   onCreate: () => void;
   onEdit: (s: IDXSearch) => void;
   onDelete: (id: string) => void;
   onConfirmDelete: (id: string | null) => void;
   onToggleUpdates: (s: IDXSearch) => void;
+  activityData: ActivityData | null;
+  activityLoading: boolean;
+  activityError: string | null;
 }) {
   const name = contact
     ? `${contact.firstName} ${contact.lastName}`.trim()
@@ -754,36 +1113,60 @@ function MainView({
         </div>
       </div>
 
-      <div style={S.body}>
-        <p style={S.sectionLabel}>Saved Searches</p>
-
-        {searches.length === 0 ? (
-          <div style={S.emptyState}>
-            No saved searches yet.
-            <br />
-            Create one to start sending alerts.
-          </div>
-        ) : (
-          searches.map((s) => (
-            <SearchCard
-              key={s.id}
-              search={s}
-              onEdit={onEdit}
-              onDelete={onDelete}
-              onToggleUpdates={onToggleUpdates}
-              confirmDeleteId={confirmDeleteId}
-              setConfirmDeleteId={onConfirmDelete}
-              deletingId={deletingId}
-            />
-          ))
-        )}
-
-        {leadId && (
-          <button style={S.createBtn} onClick={onCreate}>
-            + Create Saved Search
-          </button>
-        )}
+      {/* Tab bar */}
+      <div style={S.tabBar}>
+        <button
+          style={S.tab(activeTab === "alerts")}
+          onClick={() => onTabChange("alerts")}
+        >
+          Alerts
+        </button>
+        <button
+          style={S.tab(activeTab === "activity")}
+          onClick={() => onTabChange("activity")}
+        >
+          Activity
+        </button>
       </div>
+
+      {activeTab === "alerts" ? (
+        <div style={S.body}>
+          <p style={S.sectionLabel}>Saved Searches</p>
+
+          {searches.length === 0 ? (
+            <div style={S.emptyState}>
+              No saved searches yet.
+              <br />
+              Create one to start sending alerts.
+            </div>
+          ) : (
+            searches.map((s) => (
+              <SearchCard
+                key={s.id}
+                search={s}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                onToggleUpdates={onToggleUpdates}
+                confirmDeleteId={confirmDeleteId}
+                setConfirmDeleteId={onConfirmDelete}
+                deletingId={deletingId}
+              />
+            ))
+          )}
+
+          {leadId && (
+            <button style={S.createBtn} onClick={onCreate}>
+              + Create Saved Search
+            </button>
+          )}
+        </div>
+      ) : (
+        <ActivityView
+          data={activityData}
+          loading={activityLoading}
+          error={activityError}
+        />
+      )}
     </div>
   );
 }
@@ -1185,6 +1568,12 @@ export default function FubApp() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
+  // Tab + activity state
+  const [activeTab, setActiveTab] = useState<AppTab>("alerts");
+  const [activityData, setActivityData] = useState<ActivityData | null>(null);
+  const [activityLoading, setActivityLoading] = useState(false);
+  const [activityError, setActivityError] = useState<string | null>(null);
+
   const loadSearches = useCallback(async (lid: string) => {
     const res = await fetch(`/api/fub/listing-alerts/searches/${lid}`);
     if (!res.ok) return;
@@ -1192,12 +1581,37 @@ export default function FubApp() {
     setSearches(data.searches ?? []);
   }, []);
 
+  const loadActivity = useCallback(async (lid: string) => {
+    setActivityLoading(true);
+    setActivityError(null);
+    try {
+      const res = await fetch(`/api/fub/listing-alerts/activity/${lid}`);
+      if (!res.ok) {
+        setActivityError("Failed to load activity data.");
+        return;
+      }
+      const data = await res.json() as ActivityData;
+      setActivityData(data);
+    } catch {
+      setActivityError("Network error loading activity.");
+    } finally {
+      setActivityLoading(false);
+    }
+  }, []);
+
+  function handleTabChange(tab: AppTab) {
+    setActiveTab(tab);
+    // Lazy-load activity on first visit; don't re-fetch on subsequent switches
+    if (tab === "activity" && leadId && !activityData && !activityLoading) {
+      loadActivity(leadId);
+    }
+  }
+
   useEffect(() => {
     const context = searchParams.get("context");
     const signature = searchParams.get("signature");
 
     if (!context) {
-      // No FUB context — dev/preview mode
       setPhase("idle");
       return;
     }
@@ -1331,11 +1745,16 @@ export default function FubApp() {
       searches={searches}
       confirmDeleteId={confirmDeleteId}
       deletingId={deletingId}
+      activeTab={activeTab}
+      onTabChange={handleTabChange}
       onCreate={startCreate}
       onEdit={startEdit}
       onDelete={handleDelete}
       onConfirmDelete={setConfirmDeleteId}
       onToggleUpdates={handleToggleUpdates}
+      activityData={activityData}
+      activityLoading={activityLoading}
+      activityError={activityError}
     />
   );
 }
