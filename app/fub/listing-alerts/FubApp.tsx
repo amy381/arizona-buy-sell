@@ -22,9 +22,9 @@ interface IDXSearchCriteria {
   ccz?: string;
   bd?: string;
   tb?: string;
-  sqft?: string;
+  amin_sqFt?: string;
   amax_sqFt?: string;
-  acres?: string;
+  amin_acres?: string;
   amax_acres?: string;
   srt?: string;
   amin_yearBuilt?: string;
@@ -241,7 +241,7 @@ function buildSummary(s: IDXSearchCriteria): string {
 
   if (s.bd && s.bd !== "0") parts.push(`${s.bd}+ bd`);
   if (s.tb && s.tb !== "0") parts.push(`${s.tb}+ ba`);
-  if (s.sqft) parts.push(`${parseInt(s.sqft).toLocaleString()}+ sqft`);
+  if (s.amin_sqFt) parts.push(`${parseInt(s.amin_sqFt).toLocaleString()}+ sqft`);
 
   const typeLabel =
     PROP_TYPES.find((p) => p.value === s.pt)?.label ?? "";
@@ -287,9 +287,9 @@ function searchToForm(s: IDXSearch): FormValues {
     hp: src.hp ?? "",
     bd: src.bd ?? "0",
     tb: src.tb ?? "0",
-    sqft: src.sqft ?? "",
+    sqft: src.amin_sqFt ?? "",
     maxSqft: src.amax_sqFt ?? "",
-    acres: src.acres ?? "",
+    acres: src.amin_acres ?? "",
     maxAcres: src.amax_acres ?? "",
     minYearBuilt: src.amin_yearBuilt ?? "",
     maxYearBuilt: src.amax_yearBuilt ?? "",
@@ -323,9 +323,9 @@ function buildPayload(form: FormValues): string {
   if (form.hp) body.append("search[hp]", form.hp);
   if (form.bd !== "0") body.append("search[bd]", form.bd);
   if (form.tb !== "0") body.append("search[tb]", form.tb);
-  if (form.sqft) body.append("search[sqft]", form.sqft);
+  if (form.sqft) body.append("search[amin_sqFt]", form.sqft);
   if (form.maxSqft) body.append("search[amax_sqFt]", form.maxSqft);
-  if (form.acres) body.append("search[acres]", form.acres);
+  if (form.acres) body.append("search[amin_acres]", form.acres);
   if (form.maxAcres) body.append("search[amax_acres]", form.maxAcres);
   if (form.minYearBuilt)
     body.append("search[amin_yearBuilt]", form.minYearBuilt);
