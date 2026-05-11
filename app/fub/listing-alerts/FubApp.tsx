@@ -30,6 +30,7 @@ interface IDXSearchCriteria {
   amin_yearBuilt?: string;
   amax_yearBuilt?: string;
   a_propSubType?: string | string[];
+  a_status?: string | string[];
   amax_associationFee?: string;
   a_fencing?: string | string[];
   a_parkingFeatures?: string | string[];
@@ -51,6 +52,7 @@ interface FormValues {
   cities: string[];
   pt: string;
   subtypes: string[];
+  status: string[];
   lp: string;
   hp: string;
   bd: string;
@@ -120,6 +122,8 @@ const SUBTYPES_BY_TYPE: Record<string, string[]> = {
   "1": ["Single Family Residence", "Condominium", "Manufactured Home", "Townhouse"],
   "7": ["Residential Lot", "Commercial/Industrial", "Farm/Ranch"],
 };
+
+const STATUS_OPTIONS = ["Active", "Pending", "Closed"];
 
 const BD_OPTIONS = [
   { value: "0", label: "Any" },
@@ -195,6 +199,7 @@ const DEFAULT_FORM: FormValues = {
   cities: [],
   pt: "1",
   subtypes: [],
+  status: ["Active"],
   lp: "",
   hp: "",
   bd: "0",
@@ -262,6 +267,11 @@ function searchToForm(s: IDXSearch): FormValues {
     : src.a_propSubType
     ? [src.a_propSubType]
     : [];
+  const status = Array.isArray(src.a_status)
+    ? src.a_status
+    : src.a_status
+    ? [src.a_status]
+    : [];
   const fencing = Array.isArray(src.a_fencing)
     ? src.a_fencing
     : src.a_fencing
@@ -283,6 +293,7 @@ function searchToForm(s: IDXSearch): FormValues {
     cities,
     pt: src.pt ?? "1",
     subtypes,
+    status,
     lp: src.lp ?? "",
     hp: src.hp ?? "",
     bd: src.bd ?? "0",
@@ -318,6 +329,7 @@ function buildPayload(form: FormValues): string {
   form.subtypes.forEach((sub) =>
     body.append("search[a_propSubType][]", sub)
   );
+  form.status.forEach((s) => body.append("search[a_status][]", s));
 
   if (form.lp) body.append("search[lp]", form.lp);
   if (form.hp) body.append("search[hp]", form.hp);
@@ -1450,6 +1462,14 @@ function FormView({
             ))}
           </div>
         )}
+
+        {/* Status */}
+        <CollapsibleMultiSelect
+          label="Status"
+          options={STATUS_OPTIONS}
+          selected={form.status}
+          onChange={(values) => setForm((f) => ({ ...f, status: values }))}
+        />
 
         <div style={S.divider} />
 
