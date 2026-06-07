@@ -8,32 +8,10 @@ const IDX_HEADERS = {
 
 type Params = { params: Promise<{ leadId: string; searchId: string }> };
 
-// TEMP — see app/api/fub/listing-alerts/searches/[leadId]/route.ts for context.
-function decodeIdxBody(raw: string): Record<string, string | string[]> {
-  const params = new URLSearchParams(raw);
-  const out: Record<string, string | string[]> = {};
-  for (const [k, v] of params.entries()) {
-    if (k in out) {
-      const existing = out[k];
-      out[k] = Array.isArray(existing) ? [...existing, v] : [existing, v];
-    } else {
-      out[k] = v;
-    }
-  }
-  return out;
-}
-
 // POST — update an existing saved search
 export async function POST(req: NextRequest, { params }: Params) {
   const { leadId, searchId } = await params;
   const body = await req.text();
-
-  // TEMP: log + echo the decoded IDX query.
-  const debugIdxQuery = decodeIdxBody(body);
-  console.log(
-    "[IDX POST search] leadId=%s searchId=%s query=%s",
-    leadId, searchId, JSON.stringify(debugIdxQuery)
-  );
 
   const res = await fetch(
     `https://api.idxbroker.com/leads/search/${leadId}/${searchId}`,
@@ -46,17 +24,10 @@ export async function POST(req: NextRequest, { params }: Params) {
 
   if (!res.ok) {
     const text = await res.text();
-    return NextResponse.json(
-      { error: text || "Failed to update search", _debug_idxQuery: debugIdxQuery, _debug_idxQueryString: body },
-      { status: res.status }
-    );
+    return NextResponse.json({ error: text || "Failed to update search" }, { status: res.status });
   }
 
-  return NextResponse.json({
-    ok: true,
-    _debug_idxQuery: debugIdxQuery,
-    _debug_idxQueryString: body,
-  });
+  return NextResponse.json({ ok: true });
 }
 
 // DELETE — delete a saved search
