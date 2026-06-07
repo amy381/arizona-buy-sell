@@ -313,12 +313,21 @@ function searchToForm(s: IDXSearch): FormValues {
 }
 
 // ─── Single source of truth for active IDX filter params ──────────────────────
-// collectIdxParams returns one entry per (logicalKey, value) pair that should
-// reach IDX. buildPayload wraps each key in `search[...]` for the saved-search
-// API; buildResultsURL emits the same keys without that wrapper for the public
-// results URL. Both renderers iterate the SAME list, so adding a filter to one
-// path without the other is structurally impossible — and the dev-only parity
-// guard at the bottom of this block catches anyone who tries to bypass it.
+// collectIdxParams returns one entry per active FILTER — what the lead will
+// see narrowed to. Envelope concerns (which MLS, which page of the IDX site,
+// what sort order to render in) are NOT filters and live in each adapter:
+//
+//   • buildPayload (saved-search criteria for PUT /leads/search/{leadId}):
+//     emits filters only. The leadId path already binds the search to the
+//     account's MLS, and sort order is a results-page concern, not stored
+//     criteria.
+//   • buildResultsURL (the public preview link): prepends the envelope
+//     keys page=listings, idxID=c090, srt=newest before iterating filters.
+//
+// Both adapters iterate the SAME collectIdxParams output for the actual
+// filter set, so adding a filter to one path without the other is
+// structurally impossible. The dev-only parity guard at the bottom of this
+// block catches anyone who tries to bypass it.
 //
 // Param-name mapping confirmed against IDX Broker's /mls/searchfields/c090
 // endpoint on 2026-06-06. The results-URL convention strips only the
@@ -329,9 +338,6 @@ type IdxParam = { key: string; value: string; array?: boolean };
 
 function collectIdxParams(form: FormValues): IdxParam[] {
   const out: IdxParam[] = [];
-
-  out.push({ key: "idxID", value: "c090" });
-  out.push({ key: "srt",   value: "newest" });
 
   if (form.cities.length > 0) {
     out.push({ key: "ccz", value: "city" });
@@ -393,7 +399,12 @@ function buildPayload(form: FormValues): string {
 
 function buildResultsURL(form: FormValues): string {
   const params = new URLSearchParams();
-  params.append("page", "listings");
+  // URL-only envelope: page tells IDX which view to render, idxID picks the
+  // MLS dataset, srt sets the on-page sort order. None of these belong in the
+  // stored saved-search criteria.
+  params.append("page",  "listings");
+  params.append("idxID", "c090");
+  params.append("srt",   "newest");
   for (const p of collectIdxParams(form)) {
     params.append(wrapUrlKey(p.key, !!p.array), p.value);
   }
@@ -427,8 +438,11 @@ if (typeof process !== "undefined" && process.env.NODE_ENV !== "production") {
   };
 
   const stripArray = (k: string) => k.replace(/\[\]$/, "");
+  // Envelope keys — never part of the filter set, so the parity check
+  // excludes them on both sides. If a key appears here it's intentionally
+  // emitted by one adapter only (or by both, but as boilerplate, not a filter).
   const NON_FILTER_API = new Set(["searchName", "receiveUpdates"]);
-  const NON_FILTER_URL = new Set(["page"]);
+  const NON_FILTER_URL = new Set(["page", "idxID", "srt"]);
 
   const fromApiKey = (k: string): string | null => {
     if (NON_FILTER_API.has(k)) return null;
