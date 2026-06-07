@@ -1458,6 +1458,126 @@ function CollapsibleMultiSelect({
   );
 }
 
+// ─── Range parsing / formatting ──────────────────────────────────────────────
+// Single-box range input grammar:
+//   "1300-1500"  →  range  (digits on BOTH sides of dash)
+//   "1500+"      →  minimum only
+//   "1500-"      →  maximum only (nothing after dash)
+//   "1500"       →  exact (min === max)
+//   ""           →  no filter
+// Decimals are allowed (for acres). Spaces, commas, and dollar signs are
+// stripped. Anything that doesn't match returns null, which the input renders
+// as an invalid state — the form value is preserved at its last good parse.
+
+type ParsedRange = { min: string; max: string };
+
+const NUM = String.raw`(\d+(?:\.\d+)?)`;
+const RE_RANGE    = new RegExp(`^${NUM}-${NUM}$`);
+const RE_MIN_ONLY = new RegExp(`^${NUM}\\+$`);
+const RE_MAX_ONLY = new RegExp(`^${NUM}-$`);
+const RE_EXACT    = new RegExp(`^${NUM}$`);
+
+function parseRangeInput(raw: string): ParsedRange | null {
+  const s = raw.replace(/[\s,$]/g, "");
+  if (s === "") return { min: "", max: "" };
+  let m: RegExpMatchArray | null;
+  if ((m = s.match(RE_RANGE)))    return { min: m[1], max: m[2] };
+  if ((m = s.match(RE_MIN_ONLY))) return { min: m[1], max: "" };
+  if ((m = s.match(RE_MAX_ONLY))) return { min: "", max: m[1] };
+  if ((m = s.match(RE_EXACT)))    return { min: m[1], max: m[1] };
+  return null;
+}
+
+function formatRangeForInput(min: string, max: string): string {
+  if (!min && !max) return "";
+  if (min && max && min === max) return min;
+  if (min && max) return `${min}-${max}`;
+  if (min) return `${min}+`;
+  return `${max}-`;
+}
+
+// Price preview helper — shows the actual dollar amounts under the price input
+// so the "in thousands" convention is unambiguous. Operates on the underlying
+// stored values (lp/hp in dollars), not the input's thousands form.
+function formatDollarsRange(lp: string, hp: string): string {
+  if (!lp && !hp) return "";
+  const fmt = (v: string) => "$" + Number(v).toLocaleString("en-US");
+  if (lp && hp && lp === hp) return fmt(lp);
+  if (lp && hp) return `${fmt(lp)}–${fmt(hp)}`;
+  if (lp) return `${fmt(lp)}+`;
+  return `up to ${fmt(hp)}`;
+}
+
+// ─── Single-box range input ──────────────────────────────────────────────────
+// Drives two underlying state fields (min/max) from one user-visible textbox.
+// On change: parse → if valid, propagate to parent; if invalid, hold the
+// invalid string in local state and tint the border red without touching
+// parent state. On parent-prop changes (e.g. searchToForm load), local state
+// re-syncs.
+
+function RangeInput({
+  min,
+  max,
+  onChange,
+  placeholder,
+  preview,
+}: {
+  min: string;
+  max: string;
+  onChange: (next: ParsedRange) => void;
+  placeholder?: string;
+  preview?: string;
+}) {
+  const [local, setLocal] = useState<string>(() => formatRangeForInput(min, max));
+  const [invalid, setInvalid] = useState(false);
+  const propString = formatRangeForInput(min, max);
+
+  // Sync from parent when the underlying min/max changes externally
+  // (initial load, saved-search load, programmatic reset).
+  useEffect(() => {
+    setLocal(propString);
+    setInvalid(false);
+  }, [propString]);
+
+  function handleChange(value: string) {
+    setLocal(value);
+    const parsed = parseRangeInput(value);
+    if (parsed === null) {
+      setInvalid(true);
+      return; // keep parent state intact while user is still typing
+    }
+    setInvalid(false);
+    onChange(parsed);
+  }
+
+  return (
+    <>
+      <input
+        style={{
+          ...S.input,
+          ...(invalid ? { borderColor: "#DC2626", background: "#FEF2F2" } : {}),
+        }}
+        type="text"
+        inputMode="decimal"
+        value={local}
+        onChange={(e) => handleChange(e.target.value)}
+        placeholder={placeholder}
+      />
+      {preview && (
+        <p
+          style={{
+            fontSize: 11,
+            color: "#6B7280",
+            margin: "4px 0 0",
+          }}
+        >
+          = {preview}
+        </p>
+      )}
+    </>
+  );
+}
+
 // ─── Form View ────────────────────────────────────────────────────────────────
 
 function FormView({
@@ -1586,34 +1706,22 @@ function FormView({
 
         <div style={S.divider} />
 
-        {/* Price Range */}
-        <div style={{ ...S.field, ...S.priceRow }}>
-          <div>
-            <label style={S.label}>Min Price</label>
-            <input
-              style={S.input}
-              type="number"
-              value={form.lp}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, lp: e.target.value }))
-              }
-              placeholder="$0"
-              min={0}
-            />
-          </div>
-          <div>
-            <label style={S.label}>Max Price</label>
-            <input
-              style={S.input}
-              type="number"
-              value={form.hp}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, hp: e.target.value }))
-              }
-              placeholder="No max"
-              min={0}
-            />
-          </div>
+        {/* Price (in thousands) — single box, multiplied by 1000 into lp/hp */}
+        <div style={S.field}>
+          <label style={S.label}>Price (in thousands)</label>
+          <RangeInput
+            min={form.lp ? String(Number(form.lp) / 1000) : ""}
+            max={form.hp ? String(Number(form.hp) / 1000) : ""}
+            onChange={({ min, max }) =>
+              setForm((f) => ({
+                ...f,
+                lp: min ? String(Math.round(Number(min) * 1000)) : "",
+                hp: max ? String(Math.round(Number(max) * 1000)) : "",
+              }))
+            }
+            placeholder="e.g. 250-350"
+            preview={formatDollarsRange(form.lp, form.hp)}
+          />
         </div>
 
         {/* Beds / Baths */}
@@ -1655,86 +1763,40 @@ function FormView({
         {/* Approx SqFt */}
         <div style={S.field}>
           <label style={S.label}>Approx SqFt</label>
-          <div style={S.halfRow}>
-            <input
-              style={S.input}
-              type="number"
-              value={form.sqft}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, sqft: e.target.value }))
-              }
-              placeholder="Min"
-              min={0}
-            />
-            <input
-              style={S.input}
-              type="number"
-              value={form.maxSqft}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, maxSqft: e.target.value }))
-              }
-              placeholder="Max"
-              min={0}
-            />
-          </div>
+          <RangeInput
+            min={form.sqft}
+            max={form.maxSqft}
+            onChange={({ min, max }) =>
+              setForm((f) => ({ ...f, sqft: min, maxSqft: max }))
+            }
+            placeholder="e.g. 1300-1500"
+          />
         </div>
 
         {/* Approx Acres */}
         <div style={S.field}>
           <label style={S.label}>Approx Acres</label>
-          <div style={S.halfRow}>
-            <input
-              style={S.input}
-              type="number"
-              value={form.acres}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, acres: e.target.value }))
-              }
-              placeholder="Min"
-              min={0}
-              step="0.01"
-            />
-            <input
-              style={S.input}
-              type="number"
-              value={form.maxAcres}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, maxAcres: e.target.value }))
-              }
-              placeholder="Max"
-              min={0}
-              step="0.01"
-            />
-          </div>
+          <RangeInput
+            min={form.acres}
+            max={form.maxAcres}
+            onChange={({ min, max }) =>
+              setForm((f) => ({ ...f, acres: min, maxAcres: max }))
+            }
+            placeholder="e.g. 0.25-2"
+          />
         </div>
 
         {/* Year Built */}
         <div style={S.field}>
           <label style={S.label}>Year Built</label>
-          <div style={S.halfRow}>
-            <input
-              style={S.input}
-              type="number"
-              value={form.minYearBuilt}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, minYearBuilt: e.target.value }))
-              }
-              placeholder="Min"
-              min={1800}
-              max={new Date().getFullYear() + 2}
-            />
-            <input
-              style={S.input}
-              type="number"
-              value={form.maxYearBuilt}
-              onChange={(e) =>
-                setForm((f) => ({ ...f, maxYearBuilt: e.target.value }))
-              }
-              placeholder="Max"
-              min={1800}
-              max={new Date().getFullYear() + 2}
-            />
-          </div>
+          <RangeInput
+            min={form.minYearBuilt}
+            max={form.maxYearBuilt}
+            onChange={({ min, max }) =>
+              setForm((f) => ({ ...f, minYearBuilt: min, maxYearBuilt: max }))
+            }
+            placeholder="e.g. 2010-2025"
+          />
         </div>
 
         {/* Fencing */}
