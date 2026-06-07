@@ -312,64 +312,163 @@ function searchToForm(s: IDXSearch): FormValues {
   };
 }
 
+// ─── Single source of truth for active IDX filter params ──────────────────────
+// collectIdxParams returns one entry per (logicalKey, value) pair that should
+// reach IDX. buildPayload wraps each key in `search[...]` for the saved-search
+// API; buildResultsURL emits the same keys without that wrapper for the public
+// results URL. Both renderers iterate the SAME list, so adding a filter to one
+// path without the other is structurally impossible — and the dev-only parity
+// guard at the bottom of this block catches anyone who tries to bypass it.
+//
+// Param-name mapping confirmed against IDX Broker's /mls/searchfields/c090
+// endpoint on 2026-06-06. The results-URL convention strips only the
+// `search[...]` wrapper from the API form (verified by IDX's URL parameter
+// docs; range/array fields use the same camelCase names in both).
+
+type IdxParam = { key: string; value: string; array?: boolean };
+
+function collectIdxParams(form: FormValues): IdxParam[] {
+  const out: IdxParam[] = [];
+
+  out.push({ key: "idxID", value: "c090" });
+  out.push({ key: "srt",   value: "newest" });
+
+  if (form.cities.length > 0) {
+    out.push({ key: "ccz", value: "city" });
+    form.cities.forEach((id) =>
+      out.push({ key: "city", value: id, array: true })
+    );
+  }
+  if (form.pt) out.push({ key: "pt", value: form.pt });
+
+  form.subtypes.forEach((v) =>
+    out.push({ key: "a_propSubType", value: v, array: true })
+  );
+  form.status.forEach((v) =>
+    out.push({ key: "a_status", value: v, array: true })
+  );
+
+  if (form.lp)         out.push({ key: "lp", value: form.lp });
+  if (form.hp)         out.push({ key: "hp", value: form.hp });
+  if (form.bd !== "0") out.push({ key: "bd", value: form.bd });
+  if (form.tb !== "0") out.push({ key: "tb", value: form.tb });
+
+  if (form.sqft)         out.push({ key: "amin_sqFt",          value: form.sqft });
+  if (form.maxSqft)      out.push({ key: "amax_sqFt",          value: form.maxSqft });
+  if (form.acres)        out.push({ key: "amin_acres",         value: form.acres });
+  if (form.maxAcres)     out.push({ key: "amax_acres",         value: form.maxAcres });
+  if (form.minYearBuilt) out.push({ key: "amin_yearBuilt",     value: form.minYearBuilt });
+  if (form.maxYearBuilt) out.push({ key: "amax_yearBuilt",     value: form.maxYearBuilt });
+  if (form.maxAssocFee !== "")
+    out.push({ key: "amax_associationFee", value: form.maxAssocFee });
+
+  form.fencing.forEach((v) =>
+    out.push({ key: "a_fencing", value: v, array: true })
+  );
+  form.parkingFeatures.forEach((v) =>
+    out.push({ key: "a_parkingFeatures", value: v, array: true })
+  );
+  form.cooling.forEach((v) =>
+    out.push({ key: "a_cooling", value: v, array: true })
+  );
+
+  return out;
+}
+
+const wrapApiKey = (key: string, array: boolean) =>
+  array ? `search[${key}][]` : `search[${key}]`;
+
+const wrapUrlKey = (key: string, array: boolean) =>
+  array ? `${key}[]` : key;
+
 function buildPayload(form: FormValues): string {
   const body = new URLSearchParams();
   body.append("searchName", form.searchName.trim());
   body.append("receiveUpdates", form.receiveUpdates ? "y" : "n");
-  body.append("search[idxID]", "c090");
-  body.append("search[srt]", "newest");
-
-  if (form.cities.length > 0) {
-    body.append("search[ccz]", "city");
-    form.cities.forEach((id) => body.append("search[city][]", id));
+  for (const p of collectIdxParams(form)) {
+    body.append(wrapApiKey(p.key, !!p.array), p.value);
   }
-
-  if (form.pt) body.append("search[pt]", form.pt);
-
-  form.subtypes.forEach((sub) =>
-    body.append("search[a_propSubType][]", sub)
-  );
-  form.status.forEach((s) => body.append("search[a_status][]", s));
-
-  if (form.lp) body.append("search[lp]", form.lp);
-  if (form.hp) body.append("search[hp]", form.hp);
-  if (form.bd !== "0") body.append("search[bd]", form.bd);
-  if (form.tb !== "0") body.append("search[tb]", form.tb);
-  if (form.sqft) body.append("search[amin_sqFt]", form.sqft);
-  if (form.maxSqft) body.append("search[amax_sqFt]", form.maxSqft);
-  if (form.acres) body.append("search[amin_acres]", form.acres);
-  if (form.maxAcres) body.append("search[amax_acres]", form.maxAcres);
-  if (form.minYearBuilt)
-    body.append("search[amin_yearBuilt]", form.minYearBuilt);
-  if (form.maxYearBuilt)
-    body.append("search[amax_yearBuilt]", form.maxYearBuilt);
-  if (form.maxAssocFee !== "")
-    body.append("search[amax_associationFee]", form.maxAssocFee);
-  form.fencing.forEach((v) => body.append("search[a_fencing][]", v));
-  form.parkingFeatures.forEach((v) =>
-    body.append("search[a_parkingFeatures][]", v)
-  );
-  form.cooling.forEach((v) => body.append("search[a_cooling][]", v));
-
   return body.toString();
 }
 
 function buildResultsURL(form: FormValues): string {
-  const p = new URLSearchParams();
-  p.set("page", "listings");
-  p.set("idxID", "c090");
-  if (form.pt) p.set("pt", form.pt);
-  if (form.cities.length > 0) {
-    p.set("ccz", "city");
-    form.cities.forEach((id) => p.append("city[]", id));
+  const params = new URLSearchParams();
+  params.append("page", "listings");
+  for (const p of collectIdxParams(form)) {
+    params.append(wrapUrlKey(p.key, !!p.array), p.value);
   }
-  if (form.lp) p.set("lp", form.lp);
-  if (form.hp) p.set("hp", form.hp);
-  if (form.bd !== "0") p.set("bd", form.bd);
-  if (form.tb !== "0") p.set("tb", form.tb);
-  if (form.sqft) p.set("sqft", form.sqft);
-  p.set("srt", "newest");
-  return `https://search.arizonabuyandsell.com/idx/results?${p.toString()}`;
+  return `https://search.arizonabuyandsell.com/idx/results?${params.toString()}`;
+}
+
+// ─── Parity guard ─────────────────────────────────────────────────────────────
+// Module-load assertion (dev only). Renders a fully-populated sample form
+// through both buildPayload and buildResultsURL and compares the LOGICAL key
+// sets (after stripping the API's `search[...]` wrapper and either path's
+// `[]` repeat suffix). If they ever diverge — someone hand-edited one renderer
+// to special-case a key, or added a new filter to only one path — the dev
+// server fails on first load with a clear message. Cheap; runs once per HMR.
+if (typeof process !== "undefined" && process.env.NODE_ENV !== "production") {
+  const SAMPLE_FORM: FormValues = {
+    searchName: "Parity Self-Check",
+    cities: ["24281"],
+    pt: "1",
+    subtypes: ["Single Family Residence"],
+    status: ["Active"],
+    lp: "200000", hp: "500000",
+    bd: "3", tb: "2",
+    sqft: "1500", maxSqft: "4000",
+    acres: "0.25", maxAcres: "2",
+    minYearBuilt: "2000", maxYearBuilt: "2024",
+    maxAssocFee: "200",
+    fencing: ["Block"],
+    parkingFeatures: ["Garage"],
+    cooling: ["Central Air"],
+    receiveUpdates: true,
+  };
+
+  const stripArray = (k: string) => k.replace(/\[\]$/, "");
+  const NON_FILTER_API = new Set(["searchName", "receiveUpdates"]);
+  const NON_FILTER_URL = new Set(["page"]);
+
+  const fromApiKey = (k: string): string | null => {
+    if (NON_FILTER_API.has(k)) return null;
+    const m = k.match(/^search\[(.+?)\](\[\])?$/);
+    return m ? m[1] : null;
+  };
+  const fromUrlKey = (k: string): string | null => {
+    if (NON_FILTER_URL.has(k)) return null;
+    return stripArray(k);
+  };
+
+  const collectedKeys = new Set(collectIdxParams(SAMPLE_FORM).map((p) => p.key));
+  const apiKeys = new Set<string>();
+  for (const [k] of new URLSearchParams(buildPayload(SAMPLE_FORM)).entries()) {
+    const lk = fromApiKey(k);
+    if (lk) apiKeys.add(lk);
+  }
+  const urlKeys = new Set<string>();
+  const urlQuery = buildResultsURL(SAMPLE_FORM).split("?")[1] || "";
+  for (const [k] of new URLSearchParams(urlQuery).entries()) {
+    const lk = fromUrlKey(k);
+    if (lk) urlKeys.add(lk);
+  }
+
+  const diff = (a: Set<string>, b: Set<string>) =>
+    [...a].filter((k) => !b.has(k));
+  const apiOnly      = diff(apiKeys, urlKeys);
+  const urlOnly      = diff(urlKeys, apiKeys);
+  const missingApi   = diff(collectedKeys, apiKeys);
+  const missingUrl   = diff(collectedKeys, urlKeys);
+
+  if (apiOnly.length || urlOnly.length || missingApi.length || missingUrl.length) {
+    throw new Error(
+      "[FUB listing-alerts] buildPayload / buildResultsURL filter drift:\n" +
+      `  in API payload but not preview URL:    ${apiOnly.join(", ") || "(none)"}\n` +
+      `  in preview URL but not API payload:    ${urlOnly.join(", ") || "(none)"}\n` +
+      `  in collectIdxParams but missing API:   ${missingApi.join(", ") || "(none)"}\n` +
+      `  in collectIdxParams but missing URL:   ${missingUrl.join(", ") || "(none)"}`
+    );
+  }
 }
 
 function formatActivityType(type: string | null): string {
