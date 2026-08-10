@@ -56,6 +56,10 @@ async function fetchAllIDXLeads(
   }
 }
 
+type CreateLeadResult =
+  | { ok: true; id: string }
+  | { ok: false; kind: "timeout" | "validation" | "server" | "network"; status?: number; detail?: string };
+
 // Create a single new lead in IDX Broker. Creating is much faster than
 // fetching all leads and is not subject to the 5-second timeout.
 async function createIDXLead(
@@ -63,14 +67,14 @@ async function createIDXLead(
   firstName: string,
   lastName: string,
   email: string
-): Promise<string | null> {
+): Promise<CreateLeadResult> {
   const body = new URLSearchParams();
   body.append("firstName", firstName);
   body.append("lastName", lastName || " ");
   body.append("email", email);
 
   const t = Date.now();
-  console.log("[verify] starting IDX create lead", t);
+  console.log("[verify] starting IDX create lead", t, "body:", body.toString());
   try {
     const res = await fetch("https://api.idxbroker.com/leads/lead", {
       method: "POST",
@@ -81,13 +85,26 @@ async function createIDXLead(
     if (!res.ok) {
       const text = await res.text().catch(() => "(unreadable)");
       console.error(`[verify] IDX create lead failed: ${res.status}`, text);
-      return null;
+      return {
+        ok: false,
+        kind: res.status >= 500 ? "server" : "validation",
+        status: res.status,
+        detail: text,
+      };
     }
     const created = await res.json();
-    return String(created.newID || created.id || "") || null;
+    const id = String(created.newID || created.id || "");
+    if (!id) {
+      console.error("[verify] IDX create lead returned no id:", created);
+      return { ok: false, kind: "validation", detail: "No lead id in response" };
+    }
+    return { ok: true, id };
   } catch (err) {
     console.error("[verify] IDX create lead error:", err);
-    return null;
+    if ((err as Error)?.name === "AbortError") {
+      return { ok: false, kind: "timeout" };
+    }
+    return { ok: false, kind: "network", detail: (err as Error)?.message };
   }
 }
 
@@ -223,16 +240,37 @@ export async function POST(req: NextRequest) {
 
   // ── 4. Lead not found — create it in IDX ─────────────────────────────────
   console.log("[verify] lead not in IDX, creating new lead");
-  const newLeadId = await createIDXLead(idxHeaders, firstName, lastName, email);
+  const result = await createIDXLead(idxHeaders, firstName, lastName, email);
 
-  if (!newLeadId) {
-    return NextResponse.json(
-      { error: "IDX Broker is slow right now — please try again in a moment." },
-      { status: 503 }
-    );
+  if (!result.ok) {
+    switch (result.kind) {
+      case "timeout":
+        return NextResponse.json(
+          { error: "IDX Broker is slow right now — please try again in a moment." },
+          { status: 504 }
+        );
+      case "network":
+        return NextResponse.json(
+          { error: "Couldn't reach IDX Broker — please try again in a moment." },
+          { status: 502 }
+        );
+      case "server":
+        return NextResponse.json(
+          { error: "IDX Broker had a server error — please try again in a moment." },
+          { status: 502 }
+        );
+      case "validation":
+        return NextResponse.json(
+          {
+            error:
+              "IDX Broker rejected this contact's info — retrying won't help, this needs a fix.",
+          },
+          { status: 422 }
+        );
+    }
   }
 
-  console.log("[verify] created new lead, caching leadId:", newLeadId);
-  await cacheLeadId(email, newLeadId, firstName, lastName);
-  return NextResponse.json({ leadId: newLeadId, contact });
+  console.log("[verify] created new lead, caching leadId:", result.id);
+  await cacheLeadId(email, result.id, firstName, lastName);
+  return NextResponse.json({ leadId: result.id, contact });
 }
