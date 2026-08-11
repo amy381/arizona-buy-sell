@@ -62,6 +62,12 @@ type CreateLeadResult =
 
 // Create a single new lead in IDX Broker. Creating is much faster than
 // fetching all leads and is not subject to the 5-second timeout.
+//
+// IDX Broker's /leads/lead endpoint uses PUT to create and POST to update an
+// existing lead (POST requires a leadID in the URL path). This was previously
+// sent as POST with no leadID, which IDX rejected as a missing required
+// parameter. See https://middleware.idxbroker.com/docs/api/methods (Leads -
+// lead PUT vs Leads - lead POST).
 async function createIDXLead(
   headers: Record<string, string>,
   firstName: string,
@@ -72,12 +78,13 @@ async function createIDXLead(
   body.append("firstName", firstName);
   body.append("lastName", lastName || " ");
   body.append("email", email);
+  body.append("status", "verified");
 
   const t = Date.now();
   console.log("[verify] starting IDX create lead", t, "body:", body.toString());
   try {
     const res = await fetch("https://api.idxbroker.com/leads/lead", {
-      method: "POST",
+      method: "PUT",
       headers,
       body: body.toString(),
     });
