@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -1328,15 +1328,9 @@ function MainView({
   activityLoading: boolean;
   activityError: string | null;
 }) {
-  const name = contact
-    ? `${contact.firstName} ${contact.lastName}`.trim()
-    : "";
-
   return (
     <div style={S.wrap}>
       <div style={S.header}>
-        {name && <p style={S.name}>{name}</p>}
-        {contact?.email && <p style={S.email}>{contact.email}</p>}
         <div style={S.badge(!!leadId)}>
           <span style={S.dot(!!leadId)} />
           {leadId ? "Connected to IDX Broker" : "No IDX lead found"}
@@ -1599,6 +1593,8 @@ function FormView({
   leadId: string | null;
 }) {
   const subtypeOptions = SUBTYPES_BY_TYPE[form.pt] ?? [];
+  const nameRef = useRef<HTMLInputElement>(null);
+  const [nameMissing, setNameMissing] = useState(false);
 
   function toggleCity(id: string) {
     setForm((f) => ({
@@ -1636,14 +1632,24 @@ function FormView({
         <div style={S.field}>
           <label style={S.label}>Alert Name</label>
           <input
-            style={S.input}
+            ref={nameRef}
+            style={{
+              ...S.input,
+              ...(nameMissing ? { borderColor: "#c0392b", outline: "none" } : {}),
+            }}
             type="text"
             value={form.searchName}
-            onChange={(e) =>
-              setForm((f) => ({ ...f, searchName: e.target.value }))
-            }
+            onChange={(e) => {
+              if (nameMissing) setNameMissing(false);
+              setForm((f) => ({ ...f, searchName: e.target.value }));
+            }}
             placeholder="e.g. Kingman Homes Under $400k"
           />
+          {nameMissing && (
+            <p style={{ color: "#c0392b", fontSize: 12, marginTop: 6 }}>
+              Please name this alert before saving.
+            </p>
+          )}
         </div>
 
         {/* Cities */}
@@ -1875,7 +1881,15 @@ function FormView({
           </button>
           <button
             style={S.saveBtn(saving)}
-            onClick={onSave}
+            onClick={() => {
+              if (!form.searchName.trim()) {
+                setNameMissing(true);
+                nameRef.current?.focus();
+                nameRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+                return;
+              }
+              onSave();
+            }}
             disabled={saving}
           >
             {saving ? "Saving…" : isEditing ? "Update Alert" : "Save Alert"}
@@ -2068,33 +2082,32 @@ export default function FubApp() {
   }
 
   async function handleSave() {
-    if (!leadId) return;
-    if (!form.searchName.trim()) {
-      setError("Alert name is required.");
-      return;
-    }
+    if (!leadId) { setError("No IDX lead loaded — reopen the contact."); return; }
+    if (!form.searchName.trim()) { setError("Alert name is required."); return; }
     setSaving(true);
     setError(null);
     try {
       const url = editingId
         ? `/api/fub/listing-alerts/searches/${leadId}/${editingId}`
         : `/api/fub/listing-alerts/searches/${leadId}`;
-      const method = editingId ? "POST" : "PUT";
 
       const res = await fetch(url, {
-        method,
+        method: editingId ? "POST" : "PUT",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: buildPayload(form),
       });
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        setError((err as { error?: string }).error ?? "Failed to save.");
+        setError((err as { error?: string }).error ?? `Save failed (${res.status}).`);
         return;
       }
 
       await loadSearches(leadId);
       setPhase("idle");
+    } catch (e) {
+      console.error("[FubApp] save threw:", e);
+      setError(`Couldn't save: ${(e as Error)?.message ?? "unknown error"}`);
     } finally {
       setSaving(false);
     }
