@@ -30,7 +30,7 @@ interface IDXSearchCriteria {
   amin_yearBuilt?: string;
   amax_yearBuilt?: string;
   a_propSubType?: string | string[];
-  a_status?: string | string[];
+  a_propStatus?: string | string[];
   a_associationYN?: string;
   a_fencing?: string | string[];
   a_parkingFeatures?: string | string[];
@@ -267,10 +267,10 @@ function searchToForm(s: IDXSearch): FormValues {
     : src.a_propSubType
     ? [src.a_propSubType]
     : [];
-  const status = Array.isArray(src.a_status)
-    ? src.a_status
-    : src.a_status
-    ? [src.a_status]
+  const status = Array.isArray(src.a_propStatus)
+    ? src.a_propStatus
+    : src.a_propStatus
+    ? [src.a_propStatus]
     : [];
   const fencing = Array.isArray(src.a_fencing)
     ? src.a_fencing
@@ -351,7 +351,7 @@ function collectIdxParams(form: FormValues): IdxParam[] {
     out.push({ key: "a_propSubType", value: v, array: true })
   );
   form.status.forEach((v) =>
-    out.push({ key: "a_status", value: v, array: true })
+    out.push({ key: "a_propStatus", value: v, array: true })
   );
 
   if (form.lp)         out.push({ key: "lp", value: form.lp });
