@@ -185,13 +185,13 @@ const COOLING_OPTIONS = [
   "Wall/Window Unit(s)",
 ];
 
+// IDX overloads amax_associationFee: the string "no" = no HOA, "yes" = has HOA.
+// (A numeric value would mean a max fee, but that ignores fee frequency —
+// monthly vs annual vs quarterly — so we don't expose the dollar tiers.)
 const HOA_OPTIONS = [
   { value: "", label: "Any" },
-  { value: "0", label: "No HOA" },
-  { value: "50", label: "Max $50/mo" },
-  { value: "100", label: "Max $100/mo" },
-  { value: "200", label: "Max $200/mo" },
-  { value: "300", label: "Max $300/mo" },
+  { value: "yes", label: "Has HOA" },
+  { value: "no", label: "No HOA" },
 ];
 
 const DEFAULT_FORM: FormValues = {
