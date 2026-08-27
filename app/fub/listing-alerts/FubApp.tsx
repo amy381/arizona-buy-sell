@@ -31,7 +31,7 @@ interface IDXSearchCriteria {
   amax_yearBuilt?: string;
   a_propSubType?: string | string[];
   a_status?: string | string[];
-  amax_associationFee?: string;
+  a_associationYN?: string;
   a_fencing?: string | string[];
   a_parkingFeatures?: string | string[];
   a_cooling?: string | string[];
@@ -185,9 +185,9 @@ const COOLING_OPTIONS = [
   "Wall/Window Unit(s)",
 ];
 
-// IDX overloads amax_associationFee: the string "no" = no HOA, "yes" = has HOA.
-// (A numeric value would mean a max fee, but that ignores fee frequency —
-// monthly vs annual vs quarterly — so we don't expose the dollar tiers.)
+// IDX's Association Yes/No filter is the a_associationYN field: "yes" = has HOA,
+// "no" = no HOA. (NOT amax_associationFee — that's the fee field and ignores a
+// yes/no value. Confirmed against the c090 advanced-search URL.)
 const HOA_OPTIONS = [
   { value: "", label: "Any" },
   { value: "yes", label: "Has HOA" },
@@ -304,7 +304,7 @@ function searchToForm(s: IDXSearch): FormValues {
     maxAcres: src.amax_acres ?? "",
     minYearBuilt: src.amin_yearBuilt ?? "",
     maxYearBuilt: src.amax_yearBuilt ?? "",
-    maxAssocFee: src.amax_associationFee ?? "",
+    maxAssocFee: src.a_associationYN ?? "",
     fencing,
     parkingFeatures,
     cooling,
@@ -366,7 +366,7 @@ function collectIdxParams(form: FormValues): IdxParam[] {
   if (form.minYearBuilt) out.push({ key: "amin_yearBuilt",     value: form.minYearBuilt });
   if (form.maxYearBuilt) out.push({ key: "amax_yearBuilt",     value: form.maxYearBuilt });
   if (form.maxAssocFee !== "")
-    out.push({ key: "amax_associationFee", value: form.maxAssocFee });
+    out.push({ key: "a_associationYN", value: form.maxAssocFee });
 
   form.fencing.forEach((v) =>
     out.push({ key: "a_fencing", value: v, array: true })
