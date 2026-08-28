@@ -47,6 +47,13 @@ interface IDXSearch {
   resultsURL?: string;
 }
 
+interface IDXTemplate {
+  id: number;
+  name: string;
+  criteria: IDXSearchCriteria;
+  created_at: string;
+}
+
 interface FormValues {
   searchName: string;
   cities: string[];
@@ -255,8 +262,16 @@ function buildSummary(s: IDXSearchCriteria): string {
   return parts.join(" · ") || "All listings";
 }
 
-function searchToForm(s: IDXSearch): FormValues {
-  const src = s.search ?? {};
+// criteriaToForm converts raw IDX search criteria into FormValues, defaulting
+// any field the criteria doesn't specify. `base` supplies the two fields that
+// live outside the IDX criteria (the alert's own name and its email-updates
+// toggle) so callers can preserve whatever the user already has typed rather
+// than blowing it away — e.g. applying a template onto a form that already
+// has a name mid-entry.
+function criteriaToForm(
+  src: IDXSearchCriteria,
+  base: Pick<FormValues, "searchName" | "receiveUpdates">
+): FormValues {
   const cities = Array.isArray(src.city)
     ? src.city
     : src.city
@@ -289,7 +304,7 @@ function searchToForm(s: IDXSearch): FormValues {
     : [];
 
   return {
-    searchName: s.searchName,
+    searchName: base.searchName,
     cities,
     pt: src.pt ?? "1",
     subtypes,
@@ -308,8 +323,42 @@ function searchToForm(s: IDXSearch): FormValues {
     fencing,
     parkingFeatures,
     cooling,
-    receiveUpdates: s.receiveUpdates !== "n",
+    receiveUpdates: base.receiveUpdates,
   };
+}
+
+function searchToForm(s: IDXSearch): FormValues {
+  return criteriaToForm(s.search ?? {}, {
+    searchName: s.searchName,
+    receiveUpdates: s.receiveUpdates !== "n",
+  });
+}
+
+// formToCriteria is the inverse of criteriaToForm — used by "Save as
+// Template" to snapshot the form's filter fields (everything collectIdxParams
+// would emit) while leaving out the two non-filter fields, searchName and
+// receiveUpdates, that don't belong in a reusable template.
+function formToCriteria(form: FormValues): IDXSearchCriteria {
+  const c: IDXSearchCriteria = {};
+  if (form.cities.length) c.city = form.cities;
+  if (form.pt) c.pt = form.pt;
+  if (form.subtypes.length) c.a_propSubType = form.subtypes;
+  if (form.status.length) c.a_propStatus = form.status;
+  if (form.lp) c.lp = form.lp;
+  if (form.hp) c.hp = form.hp;
+  if (form.bd !== "0") c.bd = form.bd;
+  if (form.tb !== "0") c.tb = form.tb;
+  if (form.sqft) c.amin_sqFt = form.sqft;
+  if (form.maxSqft) c.amax_sqFt = form.maxSqft;
+  if (form.acres) c.amin_acres = form.acres;
+  if (form.maxAcres) c.amax_acres = form.maxAcres;
+  if (form.minYearBuilt) c.amin_yearBuilt = form.minYearBuilt;
+  if (form.maxYearBuilt) c.amax_yearBuilt = form.maxYearBuilt;
+  if (form.maxAssocFee !== "") c.a_associationYN = form.maxAssocFee;
+  if (form.fencing.length) c.a_fencing = form.fencing;
+  if (form.parkingFeatures.length) c.a_parkingFeatures = form.parkingFeatures;
+  if (form.cooling.length) c.a_cooling = form.cooling;
+  return c;
 }
 
 // ─── Single source of truth for active IDX filter params ──────────────────────
@@ -1040,6 +1089,38 @@ const S = {
   collapseContent: {
     paddingTop: 4,
   } as React.CSSProperties,
+
+  templateRow: {
+    display: "flex",
+    gap: 8,
+    alignItems: "center",
+  } as React.CSSProperties,
+
+  smallBtn: {
+    flex: "none",
+    padding: "7px 12px",
+    border: "1px solid #D1D5DB",
+    borderRadius: 6,
+    background: "#fff",
+    color: "#374151",
+    fontSize: 12,
+    fontWeight: 500,
+    cursor: "pointer",
+    whiteSpace: "nowrap" as const,
+  } as React.CSSProperties,
+
+  smallBtnPrimary: {
+    flex: "none",
+    padding: "7px 12px",
+    border: "none",
+    borderRadius: 6,
+    background: "#2563EB",
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: 600,
+    cursor: "pointer",
+    whiteSpace: "nowrap" as const,
+  } as React.CSSProperties,
 };
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -1582,6 +1663,9 @@ function FormView({
   error,
   onSave,
   onCancel,
+  templates,
+  onApplyTemplate,
+  onSaveTemplate,
 }: {
   form: FormValues;
   setForm: React.Dispatch<React.SetStateAction<FormValues>>;
@@ -1591,10 +1675,42 @@ function FormView({
   onSave: () => void;
   onCancel: () => void;
   leadId: string | null;
+  templates: IDXTemplate[];
+  onApplyTemplate: (criteria: IDXSearchCriteria) => void;
+  onSaveTemplate: (name: string) => Promise<boolean>;
 }) {
   const subtypeOptions = SUBTYPES_BY_TYPE[form.pt] ?? [];
   const nameRef = useRef<HTMLInputElement>(null);
   const [nameMissing, setNameMissing] = useState(false);
+
+  const [templateSelect, setTemplateSelect] = useState("");
+  const [showSaveTemplate, setShowSaveTemplate] = useState(false);
+  const [templateNameInput, setTemplateNameInput] = useState("");
+  const [savingTemplate, setSavingTemplate] = useState(false);
+  const [templateSaveError, setTemplateSaveError] = useState<string | null>(null);
+
+  function handleTemplateSelect(id: string) {
+    setTemplateSelect(id);
+    if (!id) return;
+    const tmpl = templates.find((t) => String(t.id) === id);
+    if (tmpl) onApplyTemplate(tmpl.criteria);
+    setTemplateSelect(""); // loading a template is a one-shot action, not a persistent selection
+  }
+
+  async function confirmSaveTemplate() {
+    const name = templateNameInput.trim();
+    if (!name) return;
+    setSavingTemplate(true);
+    setTemplateSaveError(null);
+    const ok = await onSaveTemplate(name);
+    setSavingTemplate(false);
+    if (ok) {
+      setShowSaveTemplate(false);
+      setTemplateNameInput("");
+    } else {
+      setTemplateSaveError("Couldn't save template.");
+    }
+  }
 
   function toggleCity(id: string) {
     setForm((f) => ({
@@ -1627,6 +1743,62 @@ function FormView({
 
       <div style={S.body}>
         {error && <div style={S.errorBox}>{error}</div>}
+
+        {/* Templates */}
+        <div style={S.field}>
+          <label style={S.label}>Templates</label>
+          <div style={S.templateRow}>
+            <select
+              style={S.select}
+              value={templateSelect}
+              onChange={(e) => handleTemplateSelect(e.target.value)}
+              disabled={templates.length === 0}
+            >
+              <option value="">
+                {templates.length === 0 ? "No templates yet" : "Load from template…"}
+              </option>
+              {templates.map((t) => (
+                <option key={t.id} value={String(t.id)}>
+                  {t.name}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              style={S.smallBtn}
+              onClick={() => setShowSaveTemplate((v) => !v)}
+            >
+              Save as Template
+            </button>
+          </div>
+          {showSaveTemplate && (
+            <div style={{ ...S.templateRow, marginTop: 8 }}>
+              <input
+                style={S.input}
+                type="text"
+                value={templateNameInput}
+                onChange={(e) => setTemplateNameInput(e.target.value)}
+                placeholder="Template name"
+                autoFocus
+              />
+              <button
+                type="button"
+                style={S.smallBtnPrimary}
+                onClick={confirmSaveTemplate}
+                disabled={savingTemplate || !templateNameInput.trim()}
+              >
+                {savingTemplate ? "Saving…" : "Save"}
+              </button>
+            </div>
+          )}
+          {templateSaveError && (
+            <p style={{ color: "#c0392b", fontSize: 12, marginTop: 6 }}>
+              {templateSaveError}
+            </p>
+          )}
+        </div>
+
+        <div style={S.divider} />
 
         {/* Search Name */}
         <div style={S.field}>
@@ -1977,6 +2149,48 @@ export default function FubApp() {
   const [activityLoading, setActivityLoading] = useState(false);
   const [activityError, setActivityError] = useState<string | null>(null);
 
+  // Templates state
+  const [templates, setTemplates] = useState<IDXTemplate[]>([]);
+  const templatesLoadedRef = useRef(false);
+
+  const loadTemplates = useCallback(async () => {
+    if (templatesLoadedRef.current) return;
+    templatesLoadedRef.current = true;
+    try {
+      const res = await fetch("/api/fub/listing-alerts/templates");
+      if (!res.ok) return;
+      const data = await res.json();
+      setTemplates(data.templates ?? []);
+    } catch {
+      // template list is a convenience, not required for the form to work
+    }
+  }, []);
+
+  function applyTemplate(criteria: IDXSearchCriteria) {
+    setForm((f) =>
+      criteriaToForm(criteria, {
+        searchName: f.searchName,
+        receiveUpdates: f.receiveUpdates,
+      })
+    );
+  }
+
+  async function saveTemplate(name: string): Promise<boolean> {
+    try {
+      const res = await fetch("/api/fub/listing-alerts/templates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, criteria: formToCriteria(form) }),
+      });
+      if (!res.ok) return false;
+      const data = await res.json();
+      setTemplates((t) => [...t, data.template]);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   const loadSearches = useCallback(async (lid: string) => {
     const res = await fetch(`/api/fub/listing-alerts/searches/${lid}`);
     if (!res.ok) return;
@@ -2072,6 +2286,7 @@ export default function FubApp() {
     setEditingId(null);
     setError(null);
     setPhase("creating");
+    loadTemplates();
   }
 
   function startEdit(s: IDXSearch) {
@@ -2079,6 +2294,7 @@ export default function FubApp() {
     setEditingId(s.id);
     setError(null);
     setPhase("editing");
+    loadTemplates();
   }
 
   async function handleSave() {
@@ -2159,6 +2375,9 @@ export default function FubApp() {
           setError(null);
         }}
         leadId={leadId}
+        templates={templates}
+        onApplyTemplate={applyTemplate}
+        onSaveTemplate={saveTemplate}
       />
     );
   }
