@@ -2,6 +2,12 @@
 
 import { useState } from "react";
 
+declare global {
+  interface Window {
+    dataLayer?: Record<string, unknown>[];
+  }
+}
+
 const inputClass =
   "w-full bg-transparent border border-brand-stone/40 rounded px-4 py-2.5 text-linen text-sm placeholder:text-brand-stone/60 focus:outline-none focus:border-brand-stone transition-colors";
 
@@ -36,7 +42,13 @@ export default function ContactForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-      setStatus(res.ok ? "success" : "error");
+      if (res.ok) {
+        setStatus("success");
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ event: "contact_form_success" });
+      } else {
+        setStatus("error");
+      }
     } catch {
       setStatus("error");
     }
