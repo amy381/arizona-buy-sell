@@ -224,6 +224,56 @@ const DEFAULT_FORM: FormValues = {
   receiveUpdates: true,
 };
 
+// ─── Dev mock mode ────────────────────────────────────────────────────────────
+// For local UI work on the authenticated panel state (badge, saved-search
+// list, Create button) without a real FUB embed context or IDX Broker lead.
+// Double-gated so it can never activate in production even if the env var
+// leaks into a deployed environment by mistake: NODE_ENV must not be
+// "production" AND NEXT_PUBLIC_FUB_MOCK_MODE must be explicitly set to "1"
+// (e.g. in .env.local, which is gitignored — never committed, never set in
+// Vercel). Enable with:
+//   NEXT_PUBLIC_FUB_MOCK_MODE=1 npm run dev
+const MOCK_MODE =
+  typeof process !== "undefined" &&
+  process.env.NODE_ENV !== "production" &&
+  process.env.NEXT_PUBLIC_FUB_MOCK_MODE === "1";
+
+const MOCK_LEAD_ID = "mock-lead-1";
+
+const MOCK_CONTACT: Contact = {
+  firstName: "Test",
+  lastName: "Buyer",
+  email: "test.buyer@example.com",
+};
+
+const MOCK_SEARCHES: IDXSearch[] = [
+  {
+    id: "mock-search-1",
+    searchName: "Kingman Homes Under $400k",
+    search: {
+      pt: "1",
+      city: ["24281"],
+      a_propStatus: ["Active"],
+      hp: "400000",
+    },
+    receiveUpdates: "y",
+    created: new Date().toISOString(),
+    lastEdited: null,
+  },
+  {
+    id: "mock-search-2",
+    searchName: "Golden Valley Land",
+    search: {
+      pt: "7",
+      city: ["18350"],
+      a_propStatus: ["Active"],
+    },
+    receiveUpdates: "n",
+    created: new Date().toISOString(),
+    lastEdited: null,
+  },
+];
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function buildSummary(s: IDXSearchCriteria): string {
@@ -602,7 +652,7 @@ const S = {
   } as React.CSSProperties,
 
   header: {
-    padding: "14px 16px 12px",
+    padding: "4px 16px 12px",
     borderBottom: "1px solid #E5E7EB",
     background: "#F9FAFB",
   } as React.CSSProperties,
@@ -628,7 +678,7 @@ const S = {
       fontSize: 11,
       fontWeight: 500,
       color: connected ? "#059669" : "#D97706",
-      marginTop: 6,
+      marginTop: 0,
     } as React.CSSProperties),
 
   dot: (connected: boolean) =>
@@ -1418,7 +1468,7 @@ function MainView({
   activityError: string | null;
 }) {
   return (
-    <div style={S.wrap}>
+    <div style={{ ...S.wrap, paddingBottom: 0 }}>
       <div style={S.header}>
         <div style={S.badge(!!leadId)}>
           <span style={S.dot(!!leadId)} />
@@ -2296,6 +2346,15 @@ export default function FubApp() {
   }
 
   useEffect(() => {
+    if (MOCK_MODE) {
+      console.log("[FubApp] MOCK_MODE active — using fake authenticated lead, no network calls");
+      setContact(MOCK_CONTACT);
+      setLeadId(MOCK_LEAD_ID);
+      setSearches(MOCK_SEARCHES);
+      setPhase("idle");
+      return;
+    }
+
     console.log("[FubApp] init effect, context:", context ? "present" : "absent");
 
     if (!context) {
