@@ -915,7 +915,7 @@ const S = {
   } as React.CSSProperties,
 
   field: {
-    marginBottom: 14,
+    marginBottom: 9,
   } as React.CSSProperties,
 
   label: {
@@ -923,12 +923,20 @@ const S = {
     fontSize: 12,
     fontWeight: 500,
     color: "#374151",
-    marginBottom: 4,
+    marginBottom: 3,
+  } as React.CSSProperties,
+
+  subLabel: {
+    display: "block",
+    fontSize: 11,
+    fontWeight: 500,
+    color: "#6B7280",
+    marginBottom: 3,
   } as React.CSSProperties,
 
   input: {
     width: "100%",
-    padding: "7px 10px",
+    padding: "6px 10px",
     border: "1px solid #D1D5DB",
     borderRadius: 6,
     fontSize: 13,
@@ -940,7 +948,7 @@ const S = {
 
   select: {
     width: "100%",
-    padding: "7px 10px",
+    padding: "6px 10px",
     border: "1px solid #D1D5DB",
     borderRadius: 6,
     fontSize: 13,
@@ -955,7 +963,7 @@ const S = {
     display: "flex",
     alignItems: "center",
     gap: 8,
-    marginBottom: 6,
+    marginBottom: 4,
     cursor: "pointer",
   } as React.CSSProperties,
 
@@ -1057,7 +1065,7 @@ const S = {
   divider: {
     height: 1,
     background: "#F3F4F6",
-    margin: "14px 0",
+    margin: "10px 0",
   } as React.CSSProperties,
 
   collapseHeader: {
@@ -1066,7 +1074,7 @@ const S = {
     justifyContent: "space-between",
     cursor: "pointer",
     userSelect: "none" as const,
-    marginBottom: 4,
+    marginBottom: 3,
   } as React.CSSProperties,
 
   collapseToggleBtn: {
@@ -1533,6 +1541,83 @@ function CollapsibleMultiSelect({
   );
 }
 
+function MoreFiltersSection({
+  fencing,
+  onFencingChange,
+  parkingFeatures,
+  onParkingFeaturesChange,
+  cooling,
+  onCoolingChange,
+}: {
+  fencing: string[];
+  onFencingChange: (values: string[]) => void;
+  parkingFeatures: string[];
+  onParkingFeaturesChange: (values: string[]) => void;
+  cooling: string[];
+  onCoolingChange: (values: string[]) => void;
+}) {
+  const [open, setOpen] = useState(
+    fencing.length > 0 || parkingFeatures.length > 0 || cooling.length > 0
+  );
+
+  const allSelected = [...fencing, ...parkingFeatures, ...cooling];
+  const summary =
+    allSelected.length > 0
+      ? `${allSelected.length} selected — ${allSelected.join(", ")}`
+      : "Fencing, Parking Features, Cooling";
+
+  function toggleIn(
+    list: string[],
+    val: string,
+    onChange: (values: string[]) => void
+  ) {
+    onChange(
+      list.includes(val) ? list.filter((v) => v !== val) : [...list, val]
+    );
+  }
+
+  const groups: [string, string[], string[], (values: string[]) => void][] = [
+    ["Fencing", FENCING_OPTIONS, fencing, onFencingChange],
+    ["Parking Features", PARKING_OPTIONS, parkingFeatures, onParkingFeaturesChange],
+    ["Cooling", COOLING_OPTIONS, cooling, onCoolingChange],
+  ];
+
+  return (
+    <div style={S.field}>
+      <div style={S.collapseHeader} onClick={() => setOpen((o) => !o)}>
+        <span style={S.label}>More Filters</span>
+        <button
+          type="button"
+          style={S.collapseToggleBtn}
+          aria-label={open ? "Collapse" : "Expand"}
+        >
+          {open ? "▲" : "▼"}
+        </button>
+      </div>
+      {!open && <p style={S.collapseSummary}>{summary}</p>}
+      {open && (
+        <div style={S.collapseContent}>
+          {groups.map(([label, options, selected, onChange], i) => (
+            <div key={label} style={i < groups.length - 1 ? { marginBottom: 10 } : undefined}>
+              <span style={S.subLabel}>{label}</span>
+              {options.map((opt) => (
+                <label key={opt} style={S.checkRow}>
+                  <input
+                    type="checkbox"
+                    checked={selected.includes(opt)}
+                    onChange={() => toggleIn(selected, opt, onChange)}
+                  />
+                  <span style={S.checkLabel}>{opt}</span>
+                </label>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Range parsing / formatting ──────────────────────────────────────────────
 // Single-box range input grammar:
 //   "1300-1500"  →  range  (digits on BOTH sides of dash)
@@ -1977,30 +2062,16 @@ function FormView({
           />
         </div>
 
-        {/* Fencing */}
-        <CollapsibleMultiSelect
-          label="Fencing"
-          options={FENCING_OPTIONS}
-          selected={form.fencing}
-          onChange={(values) => setForm((f) => ({ ...f, fencing: values }))}
-        />
-
-        {/* Parking Features */}
-        <CollapsibleMultiSelect
-          label="Parking Features"
-          options={PARKING_OPTIONS}
-          selected={form.parkingFeatures}
-          onChange={(values) =>
+        {/* Fencing / Parking Features / Cooling — grouped, rarely used */}
+        <MoreFiltersSection
+          fencing={form.fencing}
+          onFencingChange={(values) => setForm((f) => ({ ...f, fencing: values }))}
+          parkingFeatures={form.parkingFeatures}
+          onParkingFeaturesChange={(values) =>
             setForm((f) => ({ ...f, parkingFeatures: values }))
           }
-        />
-
-        {/* Cooling */}
-        <CollapsibleMultiSelect
-          label="Cooling"
-          options={COOLING_OPTIONS}
-          selected={form.cooling}
-          onChange={(values) => setForm((f) => ({ ...f, cooling: values }))}
+          cooling={form.cooling}
+          onCoolingChange={(values) => setForm((f) => ({ ...f, cooling: values }))}
         />
 
         {/* HOA */}
