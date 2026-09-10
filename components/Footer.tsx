@@ -205,10 +205,16 @@ export default function Footer() {
             &copy; 2026 Amy Casanova Real Estate. All rights reserved.
           </span>
           <div style={{ display: "flex", gap: 20 }}>
-            {["Privacy", "Terms", "Fair Housing", "Accessibility", "Admin"].map((label) => (
-              <a
+            {[
+              { label: "Privacy",       href: "/privacy"       },
+              { label: "Terms",         href: "/terms"         },
+              { label: "Fair Housing",  href: "/fair-housing"  },
+              { label: "Accessibility", href: "/accessibility" },
+              { label: "Admin",         href: "/admin/content" },
+            ].map(({ label, href }) => (
+              <Link
                 key={label}
-                href={label === "Admin" ? "/admin/content" : "#"}
+                href={href}
                 className="hover:text-linen transition-colors duration-200"
                 style={{
                   fontFamily:     "var(--font-inter), sans-serif",
@@ -217,7 +223,7 @@ export default function Footer() {
                 }}
               >
                 {label}
-              </a>
+              </Link>
             ))}
           </div>
         </div>

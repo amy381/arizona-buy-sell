@@ -72,3 +72,26 @@ body {
   0%, 100% { transform: scaleY(0.5); opacity: 0.3; }
   50%       { transform: scaleY(1);   opacity: 1;   }
 }
+
+/* Legal / info page prose (Privacy, Terms, Fair Housing, Accessibility) */
+.legal-prose h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #212529;
+  margin: 36px 0 12px;
+}
+.legal-prose h2:first-child {
+  margin-top: 0;
+}
+.legal-prose p {
+  margin: 0 0 18px;
+  font-size: 15.5px;
+}
+.legal-prose a {
+  color: #7c6a58;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.legal-prose a:hover {
+  color: #212529;
+}
