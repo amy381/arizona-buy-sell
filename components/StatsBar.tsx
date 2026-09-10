@@ -22,7 +22,10 @@ const STATS: Stat[] = [
 ];
 
 function useCountUp(target: number, duration: number, started: boolean): number {
-  const [count, setCount] = useState(0);
+  // Initialise to the real target so the correct number is shown on first
+  // paint / server render / no-JS — the count-up is a progressive enhancement,
+  // never a prerequisite for showing the true figure.
+  const [count, setCount] = useState(target);
   const raf = useRef<number>(0);
 
   useEffect(() => {
@@ -32,7 +35,9 @@ function useCountUp(target: number, duration: number, started: boolean): number 
     function tick(now: number) {
       const p      = Math.min((now - t0) / duration, 1);
       const eased  = 1 - Math.pow(1 - p, 3); // cubic ease-out
-      setCount(Math.floor(eased * target));
+      // The first frame runs at p≈0, which sets count to 0 and begins the
+      // sweep — no synchronous setState needed inside the effect body.
+      setCount(p < 1 ? Math.floor(eased * target) : target);
       if (p < 1) raf.current = requestAnimationFrame(tick);
     }
 
@@ -56,7 +61,7 @@ function StatNumber({ stat, started }: { stat: Stat; started: boolean }) {
           color:        LINEN,
           letterSpacing: "-.02em",
           lineHeight:   1,
-          opacity:      started ? 1 : 0,
+          opacity:      1,
           transition:   "opacity 0.8s ease-out",
         }}
       >
