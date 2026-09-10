@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function MortgageCalculatorPage() {
   return (
     <main className="page-fade">
-      <section className="bg-brand-slate py-16 px-6">
+      <section className="bg-brand-slate pt-32 pb-16 md:pt-40 md:pb-24 px-6">
         <div className="max-w-2xl mx-auto text-center mb-10">
           <h1
             className="text-linen font-medium text-[48px]"

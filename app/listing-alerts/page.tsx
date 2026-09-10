@@ -8,7 +8,7 @@ export const metadata = {
 export default function ListingAlertsPage() {
   return (
     <main>
-      <section className="bg-brand-slate min-h-screen py-16 px-6">
+      <section className="bg-brand-slate min-h-screen pt-32 pb-16 md:pt-40 md:pb-24 px-6">
         <div className="max-w-xl mx-auto">
           <h1
             className="text-linen text-4xl text-center mb-3"
