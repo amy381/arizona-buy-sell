@@ -20,6 +20,7 @@ interface IDXSearchCriteria {
   hp?: string;
   city?: string | string[];
   ccz?: string;
+  a_subdivision?: string | string[];
   bd?: string;
   tb?: string;
   amin_sqFt?: string;
@@ -57,6 +58,7 @@ interface IDXTemplate {
 interface FormValues {
   searchName: string;
   cities: string[];
+  subdivisions: string[];
   pt: string;
   subtypes: string[];
   status: string[];
@@ -114,6 +116,123 @@ const CITIES = [
   { id: "6295", name: "Bullhead City" },
   { id: "18350", name: "Golden Valley" },
   { id: "16601", name: "Fort Mohave" },
+];
+
+// Full subdivision list for the c090 MLS feed, pulled from IDX Broker's own
+// advanced-search UI (the `a_subdivision[]` <select multiple> options) on
+// 2026-09-22. Sorted alphabetically for the searchable picker; the raw list
+// isn't fully sorted (a handful of entries are appended at the end).
+const SUBDIVISIONS = [
+  "Agua View", "Anthem at Merrill Ranch", "Arizona West", "Arroyo Vista Estates BHC",
+  "Arroyo Vista Heights BHC", "Arroyo Vista TR 1977 E.KGM", "Atherton Acres",
+  "Banks Airport Addition", "Bella Vista Estates", "Belle Air Heights", "Bermuda Acres",
+  "Bermuda Colony", "Bermuda Country Estates", "Bermuda Dunes", "Bermuda Meadows",
+  "Bermuda Plantations", "Bermuda Ranches", "Black Mountain Estates", "Bluewater Lagoon",
+  "Boulder Creek Estates", "Brassell", "Bridge Canyon Country Estates",
+  "Buckeye Havasu Heights", "Buena Vista", "Bullhead City Original", "Camp Mohave",
+  "Canyon Bluff Estates", "Canyon Shadows", "Castle Rock Village", "Cedar Creek Estates",
+  "Cedar Hills Ranches", "Cedar Hills Ranches Unit 11", "Cedar Mesa Ranches",
+  "Cedar Ridge Estates", "Central Village", "Cerbat Ranches", "Cerbat Vistas",
+  "Chaparral Bluffs", "Chaparral Country Club Condos", "Chaparral Mesa",
+  "Chaparral Terrace", "Cheyenne Meadows", "Cimarron Lake", "Clearwater Hills",
+  "College Heights", "Colorado Bay Club", "Colorado River Estates",
+  "Colorado River Gardens No 1", "Colorado River Park", "Colorado River Sites",
+  "Colorado Riviera", "Country Club Canyon Estates", "Country Club Manor",
+  "Country Club Townhomes", "Country Club Villas", "Coyote Run", "Crestview Knolls",
+  "Crystal Springs Estates", "Desert Foothills Enclave", "Desert Foothills Estates",
+  "Desert Foothills Highlands", "Desert Foothills Ventana", "Desert Fountain Estates",
+  "Desert Glen", "Desert Horizons", "Desert Lakes", "Desert Lakes Estates",
+  "Desert Palms", "Desert Ridge", "Desert Shadows Ranchos", "Dolan Springs Estates",
+  "Eagle Springs Ranch", "Eagle View Estates", "East Shore Villas", "Ehrenberg",
+  "El Camino Village", "El Rio Country Club", "Emerald River", "Equestrian Estates",
+  "Fairway Estates", "Fairway Meadows", "Fairway Village Estates",
+  "Fountain Hills Estates", "Fox Creek At The Ridge", "Fox Creek Brookfield",
+  "Fox Creek Canyon Trails", "Fox Creek Desert Sky", "Fox Creek Fox Hollow",
+  "Fox Creek Mira Monte", "Fox Creek Mtn Shadows", "Fox Creek Reserve/Enchantment",
+  "Fox Creek Sanctuary", "Fox Creek Wingate", "Fripps Ranch", "Gateway Acres",
+  "Gold Road Station", "Golden Gate Addition", "Golden Horseshoe Ranchos",
+  "Golden Mohave Estates", "Golden Sage Ranchos", "Golden Shores",
+  "Golden Valley Ranchos", "Golden Valley Ranchos South", "Granite Bluffs",
+  "Greater Kingman Addition", "Greater Kingman Industrial Prk", "Hancock Acres",
+  "Happy Valley", "Harbor View", "Havasu Heights", "Havasu R.V. Resort",
+  "Hidden Meadows", "High Desert Estates", "Hillcrest Bay", "Hillcrest Park",
+  "Holiday Harbour", "Holiday Highlands", "Holiday Shores", "Horizon Six",
+  "HORSESHOE TRAILS", "Hualapai Foothill Estates", "Hualapai Mountain Ranch",
+  "Hualapai Mtn. Road", "Hualapai Shadows", "Hualapai Valley Estates",
+  "Hubbs Addition", "Katherine Resort", "Keystone", "Kingman Air-Rail Manor",
+  "Kingman Airport Tract", "Kingman Camelback", "Kingman Country Club Addition",
+  "Kingman Crossing", "Kingman Golf Course Estates", "Kingman Metropolitan Add 1",
+  "Kingman Metropolitan Add 2", "Kingman Metropolitan Add 3",
+  "Kingman New Business Addition", "Kingman Park Estates Unit 3",
+  "Kingman Ranch Unit 1", "Kingman Terrace Addition", "Kingman Townsite",
+  "La Costa Townhomes", "La Paloma of Sunridge", "Lagoon Estates",
+  "Lake Havasu City", "Lake Havasu Estates", "Lake Juniper", "Lake Mead City",
+  "Lake Mead Rancheros", "Lake Mohave Country Club", "Lake Mohave Ctry Club Est 02",
+  "Lake Mohave Ctry Club Est 03", "Lake Mohave Highlands", "Lake Mohave Ranchos",
+  "Lake Mohave Ranchos Dev Unit 3",
+  "Lake Mohave Ranchos Dolan Springs Estates Unit 1",
+  "Lake Mohave Ranchos Unit 15", "Lake Mohave Ranchos Unit 6",
+  "Lake Mohave Ranchos Unit 8", "Lakeside 1", "Lakeside Estates", "Laredo Village",
+  "Las Estancias", "Laughlin Ranch All Communities", "Laughlin Ranch Black Mountain",
+  "Laughlin Ranch Canyons", "Laughlin Ranch Copper Canyon", "Laughlin Ranch North Fork",
+  "Laughlin Ranch North Fork - Ironwood", "Laughlin Ranch Pinnacle",
+  "Laughlin Ranch Silverado Pass", "Laughlin Ranch Summitt", "Laughlin Ranch Unit 2",
+  "Laughlin Ranch Vistas", "Lazy Y-U Ranch", "Legacy at Walleck Ranch",
+  "Linda Vista", "Longview Additions", "Los Lagos", "Los Lagos (The Greens at)",
+  "Marina Villa", "McCormick East", "McLane Hual Mtn. Estates", "Meadview Cty Ctr",
+  "Meadview Foothills", "Meadview Knolls", "Meadview Terrace", "Meadview Unit 01",
+  "Meadview Unit 02", "Meadview Unit 03", "Meadview Unit 04", "Meadview Unit 06",
+  "Meadview Unit 08", "Meadview Unit 09", "Meadview Valley", "Mesquite Creek",
+  "Metcalfe Acres", "Metcalfes Addition", "Mission Estates",
+  "Mohave Lakeview Ranchos", "Mohave Mesa", "Mohave Mesa Acres",
+  "Mohave Sun Valley Airport", "Mohave Vistas", "Montano Ridge Estates",
+  "Moonridge", "Moovalya Estates", "Morrow Acres", "Mountain Meadow Estates",
+  "Mountain View Estates", "Mountain Vista Ranches", "Music Mountain Ranches",
+  "Mystic Canyon", "N/A", "Neal One Subdivision Tract", "New Kgmn Add Unit 10 TR",
+  "New Kgmn Add Unit 11 TR", "New Kgmn Add Unit 7 TR", "New Kgmn Add Unit 8 TR",
+  "New Kgmn Add Unit 9 TR", "New Kingman Addition No 1", "New Kingman Addition No 2",
+  "New Kingman Addition No 3", "New Kingman Addition No 4",
+  "New Kingman Addition No 5", "New Kingman Addition No 6", "Palm Estates",
+  "Palo Verde Place", "Palo Verde Shores", "Paradise Acres", "Paradise Trails",
+  "Patriot Estates", "Peacock Mountain Ranch #1", "Peacock Mountain Ranches",
+  "Pebble Lake", "Pegasus Ranch Estates Unit 4", "Perry Acres", "Petersens Acres",
+  "Pine Lake Unit 1", "Pine Lake Unit 2", "Pine Lake Unit 3", "Playa Del Rio",
+  "Pleasant Valley Acres", "Pleasant View Add", "Prairie Heights Estates",
+  "Punto De Vista Unit 1", "Punto De Vista Unit 3", "Quartzsite", "Rainbow Acres",
+  "Rancho Colorado", "Rancho Santa Fe II TR", "Rancho Santa Fe III TR",
+  "Rancho Santa Fe IV TR", "Rancho Santa Fe TR", "Rancho Verde Estates",
+  "Record of Survey", "Redwall Ranch Estates", "Riata Valley Est", "Ridgeview Ranch",
+  "Rio Colorado Ranchos", "Rio Lomas", "Rio Palmas", "River Bend", "River Retreat",
+  "River Road City", "River View Condominiums", "Rivers Edge", "Riverview Park",
+  "Riverview Ranches", "Riverview RV Resort", "Riviera Estates", "Riviera Manor",
+  "Riviera Marina Village", "Riviera Mobile Gardens", "Riviera Sands",
+  "Roadhaven Marina Condos", "Roadrunner Park", "Roadway Easement", "Rodeo Park",
+  "Royal Rio Park", "Sacramento Valley Ranches", "Sage Hill Tract",
+  "Serena Grace Meadows", "Shadow Mountain Acres Unit 3", "Shadow Mountain Estates",
+  "Shangri-La Estates", "Shipp Estates", "Sierra Verde Ranch", "Sierra Vista Estates",
+  "Silver Sands", "Silverview", "So-Hi Estates", "Southern Square", "Southern Vista",
+  "Spring Valley Ranches Unit 1", "Stage Coach Trails",
+  "Stage Coach Trails at Santa Fe", "Stahlman Tract", "Stockton Hill Ranches Unit 1",
+  "Stockton Hill Ranches Unit 9", "Stowell Addition", "Sun Mission Resort",
+  "Sun Valley", "Sun West Acres", "Sunbeam Estates", "Sunridge Est Desert Canyons",
+  "Sunridge Est The Vineyard", "Sunridge Estates", "Sunrise Estates",
+  "Sunrise Vistas", "Sunset Palms", "Sunset Ranchos", "Sunward Ho! Ranches",
+  "Surrey Heights Kingman 2", "Surrey Heights Kingman 4",
+  "Terraces at Sailing Hawks", "Terraza Del Sol", "The Borgata on Mountain View",
+  "The Coves on the Col River", "The Park at Mesquite Creek",
+  "The Ranch at Long Mtn", "The Villas", "The Villas at Desert Horizons",
+  "The Willows at Cimarron Lake", "Tierra Del Rio", "Tierra Grande",
+  "Tierra Verde", "Topock Lake Rancheros", "Twin Palms Estates", "Valle Del Sol",
+  "Valle Vista Unit 1", "Valle Vista Unit 2", "Valle Vista Unit 3",
+  "Valley Springs Estates", "Valley View at Sunrise Hills", "Villages At Stonebridge",
+  "Vista Bella", "Vista Del Rio Estates", "Vista del Sol Resort", "Vock Canyon Ranches",
+  "Wagon Bow Ranch Unit 1", "Walleck Ranch TR 1961-A", "Walleck Ranch TR 1961-B",
+  "Walleck Ranch TR 1961-D", "Walleck Ranch TR 1961-E", "Walleck Ranch TR 1961-F",
+  "Walleck Ranch TR 1961-G", "Walleck Ranch TR 1961-H", "Walleck Ranch TR 1961-J",
+  "Walnut Creek", "Willow Creek Ranch Unit 4", "Willow Creek Ranch Unit 6",
+  "Willow Creek Ranch Unit 9", "Willow Valley", "Windmill Ranch Phase 2 Unit 2",
+  "Windsor Valley Ranch", "Winterhaven Estates", "Worley Addtion", "Yucca Townsite",
+  "Yucca Vista",
 ];
 
 const PROP_TYPES = [
@@ -204,6 +323,7 @@ const HOA_OPTIONS = [
 const DEFAULT_FORM: FormValues = {
   searchName: "",
   cities: [],
+  subdivisions: [],
   pt: "1",
   subtypes: [],
   status: ["Active"],
@@ -327,6 +447,11 @@ function criteriaToForm(
     : src.city
     ? [src.city]
     : [];
+  const subdivisions = Array.isArray(src.a_subdivision)
+    ? src.a_subdivision
+    : src.a_subdivision
+    ? [src.a_subdivision]
+    : [];
   const subtypes = Array.isArray(src.a_propSubType)
     ? src.a_propSubType
     : src.a_propSubType
@@ -356,6 +481,7 @@ function criteriaToForm(
   return {
     searchName: base.searchName,
     cities,
+    subdivisions,
     pt: src.pt ?? "1",
     subtypes,
     status,
@@ -391,6 +517,7 @@ function searchToForm(s: IDXSearch): FormValues {
 function formToCriteria(form: FormValues): IDXSearchCriteria {
   const c: IDXSearchCriteria = {};
   if (form.cities.length) c.city = form.cities;
+  if (form.subdivisions.length) c.a_subdivision = form.subdivisions;
   if (form.pt) c.pt = form.pt;
   if (form.subtypes.length) c.a_propSubType = form.subtypes;
   if (form.status.length) c.a_propStatus = form.status;
@@ -444,6 +571,9 @@ function collectIdxParams(form: FormValues): IdxParam[] {
       out.push({ key: "city", value: id, array: true })
     );
   }
+  form.subdivisions.forEach((v) =>
+    out.push({ key: "a_subdivision", value: v, array: true })
+  );
   if (form.pt) out.push({ key: "pt", value: form.pt });
 
   form.subtypes.forEach((v) =>
@@ -521,6 +651,7 @@ if (typeof process !== "undefined" && process.env.NODE_ENV !== "production") {
   const SAMPLE_FORM: FormValues = {
     searchName: "Parity Self-Check",
     cities: ["24281"],
+    subdivisions: ["Anthem at Merrill Ranch"],
     pt: "1",
     subtypes: ["Single Family Residence"],
     status: ["Active"],
@@ -1148,6 +1279,14 @@ const S = {
     paddingTop: 4,
   } as React.CSSProperties,
 
+  searchableListBox: {
+    maxHeight: 180,
+    overflowY: "auto" as const,
+    border: "1px solid #E5E7EB",
+    borderRadius: 6,
+    padding: "4px 8px",
+  } as React.CSSProperties,
+
   templateRow: {
     display: "flex",
     gap: 8,
@@ -1591,6 +1730,89 @@ function CollapsibleMultiSelect({
   );
 }
 
+// SearchableMultiSelect is CollapsibleMultiSelect plus a filter textbox above
+// the option list, for option sets too long to scan by eye (e.g. 300+
+// subdivisions). The filter only narrows which options are *shown* — it
+// never touches `selected`, so a match filtered out of view stays checked.
+function SearchableMultiSelect({
+  label,
+  options,
+  selected,
+  onChange,
+  placeholder = "Search…",
+}: {
+  label: string;
+  options: string[];
+  selected: string[];
+  onChange: (values: string[]) => void;
+  placeholder?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+
+  function toggle(val: string) {
+    onChange(
+      selected.includes(val)
+        ? selected.filter((v) => v !== val)
+        : [...selected, val]
+    );
+  }
+
+  const summary =
+    selected.length > 0 ? selected.join(", ") : "None selected";
+
+  const q = query.trim().toLowerCase();
+  const filtered = q
+    ? options.filter((o) => o.toLowerCase().includes(q))
+    : options;
+
+  return (
+    <div style={S.field}>
+      <div style={S.collapseHeader} onClick={() => setOpen((o) => !o)}>
+        <span style={S.label}>{label}</span>
+        <button
+          type="button"
+          style={S.collapseToggleBtn}
+          aria-label={open ? "Collapse" : "Expand"}
+        >
+          {open ? "▲" : "▼"}
+        </button>
+      </div>
+      {!open && <p style={S.collapseSummary}>{summary}</p>}
+      {open && (
+        <div style={S.collapseContent}>
+          <input
+            style={{ ...S.input, marginBottom: 6 }}
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={placeholder}
+            onClick={(e) => e.stopPropagation()}
+          />
+          <div style={S.searchableListBox}>
+            {filtered.length === 0 ? (
+              <p style={{ fontSize: 12, color: "#9CA3AF", margin: "4px 0" }}>
+                No matches.
+              </p>
+            ) : (
+              filtered.map((opt) => (
+                <label key={opt} style={S.checkRow}>
+                  <input
+                    type="checkbox"
+                    checked={selected.includes(opt)}
+                    onChange={() => toggle(opt)}
+                  />
+                  <span style={S.checkLabel}>{opt}</span>
+                </label>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function MoreFiltersSection({
   fencing,
   onFencingChange,
@@ -1973,6 +2195,15 @@ function FormView({
             </label>
           ))}
         </div>
+
+        {/* Subdivision */}
+        <SearchableMultiSelect
+          label="Subdivision"
+          options={SUBDIVISIONS}
+          selected={form.subdivisions}
+          onChange={(values) => setForm((f) => ({ ...f, subdivisions: values }))}
+          placeholder="Search subdivisions…"
+        />
 
         {/* Property Type */}
         <div style={S.field}>
